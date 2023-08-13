@@ -9,6 +9,7 @@ import com.jesz.createdieselgenerators.ponder.PonderIndex;
 import com.jesz.createdieselgenerators.recipes.RecipeRegistry;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.utility.Components;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.MutableComponent;
@@ -24,9 +25,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import static com.simibubi.create.foundation.utility.Lang.resolveBuilders;
 
-@Mod("createdieselgenerators")
-public class CreateDieselGenerators
-{
+public class CreateDieselGenerators implements ModInitializer {
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create("createdieselgenerators");
     public CreateDieselGenerators()
     {
@@ -62,5 +61,10 @@ public class CreateDieselGenerators
         ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.get(), RenderType.translucent());
         ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.getSource(), RenderType.translucent());
         PonderIndex.register();
+    }
+
+    @Override
+    public void onInitialize() {
+
     }
 }

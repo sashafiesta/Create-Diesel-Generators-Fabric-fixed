@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "createdieselgenerators",
+  "version": "${version}",
+  "name": "Create Diesel Generators",
+  "description": "Fabric port of diesel generators",
+  "authors": [
+    "MrSterner"
+  ],
+  "contact": {
+  },
+  "license": "MIT",
+  "icon": "createde_icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.jesz.createdieselgenerators.CreateDieselGenerators"
+    ],
+    "client": [
+      "com.jesz.createdieselgenerators.CreateDieselGeneratorsClient"
+    ]
+  },
+  "mixins": [
+    "createdieselgenerators.mixins.json"
+  ],
+  "accessWidener": "createdieselgenerators.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.14.10",
+    "minecraft": ">=1.20.1"
+  }
+}
