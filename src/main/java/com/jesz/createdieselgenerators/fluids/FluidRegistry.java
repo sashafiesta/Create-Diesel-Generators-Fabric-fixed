@@ -22,7 +22,7 @@ public class FluidRegistry {
     public static final FluidEntry<SimpleFlowableFluid.Flowing> PLANT_OIL =
             REGISTRATE.fluid("plant_oil", new ResourceLocation("createdieselgenerators:block/plant_oil_still"), new ResourceLocation("createdieselgenerators:block/plant_oil_flow"))
                     .lang("Plant Oil")
-                    .fluidAttributes(() -> new CreateAttributeHandler("block.create.plant_oil", 1500, 500))
+                    .fluidAttributes(() -> new CreateAttributeHandler("block.createdieselgenerators.plant_oil", 1500, 500))
                     .fluidProperties(p -> p.levelDecreasePerBlock(2)
                             .tickRate(25)
                             .flowSpeed(3)
@@ -32,7 +32,7 @@ public class FluidRegistry {
     public static final FluidEntry<SimpleFlowableFluid.Flowing> BIODIESEL =
             REGISTRATE.fluid("biodiesel", new ResourceLocation("createdieselgenerators:block/biodiesel_still"), new ResourceLocation("createdieselgenerators:block/biodiesel_flow"))
                     .lang("Biodiesel")
-                    .fluidAttributes(() -> new CreateAttributeHandler("block.create.biodiesel", 1500, 500))
+                    .fluidAttributes(() -> new CreateAttributeHandler("block.createdieselgenerators.biodiesel", 1500, 500))
                     .fluidProperties(p -> p.levelDecreasePerBlock(2)
                             .tickRate(25)
                             .flowSpeed(3)
@@ -41,7 +41,7 @@ public class FluidRegistry {
     public static final FluidEntry<SimpleFlowableFluid.Flowing> ETHANOL =
             REGISTRATE.fluid("ethanol", new ResourceLocation("createdieselgenerators:block/ethanol_still"), new ResourceLocation("createdieselgenerators:block/ethanol_flow"))
                     .lang("Ethanol")
-                    .fluidAttributes(() -> new CreateAttributeHandler("block.create.ethanol", 1500, 500))
+                    .fluidAttributes(() -> new CreateAttributeHandler("block.createdieselgenerators.ethanol", 1500, 500))
                     .fluidProperties(p -> p.levelDecreasePerBlock(2)
                             .tickRate(25)
                             .flowSpeed(5)

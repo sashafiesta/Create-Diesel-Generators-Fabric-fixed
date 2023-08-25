@@ -12,7 +12,7 @@ import com.simibubi.create.foundation.utility.Components;
 import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -41,14 +41,9 @@ public class CreateDieselGenerators implements ModInitializer, ClientModInitiali
         return Components.translatable(key, resolveBuilders(args));
     }
 
-    public static ResourceLocation asResource(String path) {
-        return new ResourceLocation(ID, path);
-    }
-
     @Override
     public void onInitializeClient() {
-        //ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.get(), RenderType.translucent());
-        //TODO ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.getSource(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putFluids(RenderType.translucent(), FluidRegistry.ETHANOL.getSource(), FluidRegistry.ETHANOL.get());
         PonderIndex.register();
     }
 }

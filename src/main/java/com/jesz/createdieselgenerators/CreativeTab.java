@@ -27,21 +27,6 @@ public class CreativeTab {
     public static final ResourceKey<CreativeModeTab> CREATIVE_TAB =
             ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(CreateDieselGenerators.ID, "group"));
 
-    public static final AllCreativeModeTabs.TabInfo MAIN_TAB = register("base",
-            () -> FabricItemGroup.builder()
-                    .title(Component.translatable("itemGroup.create.base"))
-                    .icon(() -> AllBlocks.COGWHEEL.asStack())
-                    .displayItems(new AllCreativeModeTabs.RegistrateDisplayItemsGenerator(true))
-                    .build());
-
-    private static AllCreativeModeTabs.TabInfo register(String name, Supplier<CreativeModeTab> supplier) {
-        ResourceLocation id = CreateDieselGenerators.asResource(name);
-        ResourceKey<CreativeModeTab> key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, id);
-        CreativeModeTab tab = supplier.get();
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, tab);
-        return new AllCreativeModeTabs.TabInfo(key, tab);
-    }
-
     public static void register() {
         List<Item> ITEMS = Lists.newArrayList();
         ITEMS.add(ItemRegistry.ENGINEPISTON.get());
