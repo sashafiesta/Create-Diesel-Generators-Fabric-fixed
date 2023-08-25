@@ -10,6 +10,7 @@ import com.simibubi.create.foundation.ponder.Selection;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.ponder.element.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,8 +67,9 @@ public class DieselEngineScenes {
 
         FluidStack content = new FluidStack(FluidRegistry.BIODIESEL.get()
                 .getSource(), 300);
-        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .drain(content, IFluidHandler.FluidAction.EXECUTE));
+        //scene.world.modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content));
+        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be ->
+                TransferUtil.extractFluid(be.getTankInventory(), content));
         scene.world.modifyKineticSpeed(engine, f -> 96f);
         scene.world.modifyBlock(enginePos, s -> s.setValue(POWERED, true)  , false);
         scene.effects.rotationSpeedIndicator(enginePos);
@@ -133,8 +135,9 @@ public class DieselEngineScenes {
 
         FluidStack content = new FluidStack(FluidRegistry.BIODIESEL.get()
                 .getSource(), 300);
-        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .drain(content, IFluidHandler.FluidAction.EXECUTE));
+        //scene.world.modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content));
+
+        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> TransferUtil.extractFluid(be.getTankInventory(), content));
 
         scene.world.modifyKineticSpeed(mainEngine, s -> 96f);
         scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);

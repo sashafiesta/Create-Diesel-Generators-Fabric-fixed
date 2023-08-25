@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.ponder.SceneBuildingUtil;
 import com.simibubi.create.foundation.ponder.Selection;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.utility.Pointing;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -68,8 +69,9 @@ public class BasinScenes {
         scene.idle(10);
         FluidStack content = new FluidStack(FluidRegistry.ETHANOL.get()
                 .getSource(), 50);
-        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .fill(content, IFluidHandler.FluidAction.EXECUTE));
+        //scene.world.modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content));
+        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be ->
+                TransferUtil.insertFluid(be.getTankInventory(), content));
         scene.idle(60);
 
 

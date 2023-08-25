@@ -14,6 +14,8 @@ import com.simibubi.create.foundation.utility.Lang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,10 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -52,40 +50,19 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
 
     public DieselGeneratorBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
         super(typeIn, pos, state);
-        tagSS = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_strong"));
-        tagSW = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
-        tagFS = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
-        tagFW = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
-        tagPlantOil = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:plantoil"));
-        tagFuel = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:fuel"));
-        tagEthanol = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:ethanol"));
-        tagBiodiesel = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:biodiesel"));
+        tagSS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_strong"));
+        tagSW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
+        tagFS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
+        tagFW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
+        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:plantoil"));
+        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:fuel"));
+        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:ethanol"));
+        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:biodiesel"));
         this.state = state;
     }
     private SmartFluidTankBehaviour tank;
 
 
-
-
-
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if(state.getValue(FACING) == Direction.DOWN) {
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.WEST)
-                return tank.getCapability().cast();
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.EAST)
-                return tank.getCapability().cast();
-        }else if(state.getValue(FACING) == Direction.UP){
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.NORTH)
-                return tank.getCapability().cast();
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.SOUTH)
-                return tank.getCapability().cast();
-        }else{
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.DOWN)
-                return tank.getCapability().cast();
-        }
-        return super.getCapability(cap, side);
-    }
 
 
     @Override

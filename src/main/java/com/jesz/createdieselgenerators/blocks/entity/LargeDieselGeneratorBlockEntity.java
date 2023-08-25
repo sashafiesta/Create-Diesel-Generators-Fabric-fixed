@@ -9,9 +9,11 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,11 +25,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -59,14 +56,14 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         super(typeIn, pos, state);
         forw = new WeakReference<>(null);
         back = new WeakReference<>(null);
-        tagSS = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_strong"));
-        tagSW = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
-        tagFS = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
-        tagFW = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
-        tagPlantOil = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:plantoil"));
-        tagFuel = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:fuel"));
-        tagEthanol = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:ethanol"));
-        tagBiodiesel = optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("forge:biodiesel"));
+        tagSS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_strong"));
+        tagSW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
+        tagFS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
+        tagFW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
+        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:plantoil"));
+        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:fuel"));
+        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:ethanol"));
+        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:biodiesel"));
 
         this.state = state;
     }
@@ -74,17 +71,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
     private SmartFluidTankBehaviour tank;
     public LargeDieselGeneratorBlockEntity mainTankBE;
 
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (state.getValue(PIPE)) {
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.UP)
-                if(FrontEngine != null)
-                    return FrontEngine.tank.getCapability().cast();
-                else
-                    return tank.getCapability().cast();
-        }
-        return super.getCapability(cap, side);
-    }
+
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
@@ -235,8 +222,8 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
             UpdateStacked();
 
         if(!tank.isEmpty() && engineForward != null && FrontEngine != null){
-            FrontEngine.tank.getPrimaryHandler().fill(tank.getPrimaryHandler().getFluid(), IFluidHandler.FluidAction.EXECUTE);
-            tank.getPrimaryHandler().drain(tank.getPrimaryHandler().getFluid(), IFluidHandler.FluidAction.EXECUTE);
+            TransferUtil.insertFluid(FrontEngine.tank.getPrimaryHandler(), tank.getPrimaryHandler().getFluid());
+            TransferUtil.extractFluid(FrontEngine.tank.getPrimaryHandler(), tank.getPrimaryHandler().getFluid());
         }
 
         if(tank.getPrimaryHandler().getFluid().getAmount() >= stacked){

@@ -29,7 +29,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import static com.jesz.createdieselgenerators.items.ItemRegistry.ENGINESILENCER;
 import static net.minecraft.core.Direction.NORTH;
 import static net.minecraft.core.Direction.SOUTH;
 
@@ -46,20 +45,7 @@ public class DieselGeneratorBlock extends DirectionalKineticBlock implements IBE
         registerDefaultState(super.defaultBlockState().setValue(SILENCED, false));
 
     }
-    @Override
-    public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        if(state.getValue(SILENCED))
-            if(context.getPlayer() != null && !context.getLevel().isClientSide) {
-                if (!context.getPlayer().isCreative())
-                    context.getPlayer().getInventory().placeItemBackInInventory(ENGINESILENCER.asStack());
-                context.getLevel().setBlock(context.getClickedPos(), state.setValue(SILENCED, false), 3);
-                playRotateSound(context.getLevel(), context.getClickedPos());
-                return InteractionResult.SUCCESS;
-            }
 
-
-        return super.onWrenched(state,context);
-    }
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(POWERED);
@@ -87,24 +73,6 @@ public class DieselGeneratorBlock extends DirectionalKineticBlock implements IBE
     @Override
     public BlockEntityType<? extends DieselGeneratorBlockEntity> getBlockEntityType() {
         return BlockEntityRegistry.DIESEL_ENGINE.get();
-    }
-
-    @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos,
-                                 Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        ItemStack itemInHand = pPlayer.getItemInHand(pHand);
-        if(!ENGINESILENCER.isIn(itemInHand))
-            return InteractionResult.PASS;
-        if(pState.getValue(SILENCED))
-            return InteractionResult.PASS;
-
-        if(!pPlayer.isCreative())
-            itemInHand.shrink(1);
-        pPlayer.setItemInHand(pHand, itemInHand);
-        pLevel.setBlock(pPos, pState.setValue(SILENCED, true), 3);
-        playRotateSound(pLevel, pPos);
-        return InteractionResult.SUCCESS;
-
     }
 
 
