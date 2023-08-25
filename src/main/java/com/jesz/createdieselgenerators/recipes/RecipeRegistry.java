@@ -17,18 +17,11 @@ import java.util.function.Supplier;
 public enum RecipeRegistry implements IRecipeTypeInfo {
 
     BASIN_FERMENTING(BasinFermentingRecipe::new);
-    private final ResourceLocation id = new ResourceLocation("createdieselgenerators");;
+    private final ResourceLocation id = new ResourceLocation("createdieselgenerators", "basin_fermenting");
     private final RecipeSerializer<?> serializerObject;
     @Nullable
     private final RecipeType<?> typeObject;
     private final Supplier<RecipeType<?>> type;
-
-    RecipeRegistry(Supplier<RecipeSerializer<?>> serializerSupplier, Supplier<RecipeType<?>> typeSupplier) {
-        serializerObject = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, id, serializerSupplier.get());
-        typeObject = typeSupplier.get();
-        Registry.register(BuiltInRegistries.RECIPE_TYPE, id, typeObject);
-        type = typeSupplier;
-    }
 
     RecipeRegistry(Supplier<RecipeSerializer<?>> serializerSupplier) {
         serializerObject = Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, id, serializerSupplier.get());

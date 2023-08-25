@@ -6,7 +6,7 @@
       "amount": 100
     },
     {
-      "fluidTag": "forge:ethanol",
+      "fluidTag": "c:ethanol",
       "amount": 100
     }
   ],
