@@ -20,14 +20,14 @@ public class ConfigRegistry {
     static {
         SERVER_BUILDER.push("Server Configs");
 
-        FUEL_TAG = SERVER_BUILDER.comment("forge:fuel tag compatibility")
-                .define("forge:fuel tag compatibility", true);
-        ETHANOL_TAG = SERVER_BUILDER.comment("forge:ethanol tag compatibility")
-                .define("forge:ethanol tag compatibility", true);
-        PLANTOIL_TAG = SERVER_BUILDER.comment("forge:plantoil tag compatibility")
-                .define("forge:plantoil tag compatibility", true);
-        BIODIESEL_TAG = SERVER_BUILDER.comment("forge:biodiesel tag compatibility")
-                .define("forge:biodiesel tag compatibility", true);
+        FUEL_TAG = SERVER_BUILDER.comment("c:fuel tag compatibility")
+                .define("c:fuel tag compatibility", true);
+        ETHANOL_TAG = SERVER_BUILDER.comment("c:ethanol tag compatibility")
+                .define("c:ethanol tag compatibility", true);
+        PLANTOIL_TAG = SERVER_BUILDER.comment("c:plantoil tag compatibility")
+                .define("c:plantoil tag compatibility", true);
+        BIODIESEL_TAG = SERVER_BUILDER.comment("c:biodiesel tag compatibility")
+                .define("c:biodiesel tag compatibility", true);
 
 
         SLOW_SPEED = SERVER_BUILDER.comment("Speed of Slow Fuel Type in RPM")

@@ -11,6 +11,10 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +30,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -33,7 +38,7 @@ import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.FACING
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.SILENCED;
 import static com.simibubi.create.AllTags.optionalTag;
 
-public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
+public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity implements SidedStorageBlockEntity {
     BlockState state;
     boolean weak;
     boolean slow;
@@ -48,22 +53,61 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
     private final TagKey<Fluid> tagEthanol;
     private final TagKey<Fluid> tagBiodiesel;
 
+    protected Storage<FluidVariant> fluidCapability;
+
     public DieselGeneratorBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
         super(typeIn, pos, state);
         tagSS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_strong"));
         tagSW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
         tagFS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
         tagFW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
-        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:plantoil"));
-        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:fuel"));
-        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:ethanol"));
-        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:biodiesel"));
+        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:plantoil"));
+        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:fuel"));
+        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:ethanol"));
+        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:biodiesel"));
         this.state = state;
     }
     private SmartFluidTankBehaviour tank;
 
+    @Override
+    public @Nullable Storage<FluidVariant> getFluidStorage(Direction side) {
+        if(state.getValue(FACING) == Direction.DOWN) {
+            if (side == Direction.WEST)
+                return tank.getCapability();
+            if (side == Direction.EAST)
+                return tank.getCapability();
+        }else if(state.getValue(FACING) == Direction.UP){
+            if (side == Direction.NORTH)
+                return tank.getCapability();
+            if (side == Direction.SOUTH)
+                return tank.getCapability();
+        }else{
+            if (side == Direction.DOWN)
+                return tank.getCapability();
+        }
+        return null;
+    }
 
-
+/*
+@Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+        if(state.getValue(FACING) == Direction.DOWN) {
+            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.WEST)
+                return tank.getCapability().cast();
+            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.EAST)
+                return tank.getCapability().cast();
+        }else if(state.getValue(FACING) == Direction.UP){
+            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.NORTH)
+                return tank.getCapability().cast();
+            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.SOUTH)
+                return tank.getCapability().cast();
+        }else{
+            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.DOWN)
+                return tank.getCapability().cast();
+        }
+        return super.getCapability(cap, side);
+    }
+ */
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
@@ -133,6 +177,7 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
     }
     int t = 0;
     float lastsp = 0;
+
     @Override
     public void tick() {
         super.tick();

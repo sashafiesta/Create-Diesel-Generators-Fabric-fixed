@@ -10,6 +10,9 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOp
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -33,7 +37,7 @@ import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.SILENC
 import static com.jesz.createdieselgenerators.blocks.LargeDieselGeneratorBlock.*;
 import static com.simibubi.create.AllTags.optionalTag;
 
-public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
+public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntity implements SidedStorageBlockEntity {
     BlockState state;
     boolean weak;
     boolean slow;
@@ -60,10 +64,10 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         tagSW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_slow_weak"));
         tagFS = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_strong"));
         tagFW = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:diesel_engine_fuel_fast_weak"));
-        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:plantoil"));
-        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:fuel"));
-        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:ethanol"));
-        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("forge:biodiesel"));
+        tagPlantOil = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:plantoil"));
+        tagFuel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:fuel"));
+        tagEthanol = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:ethanol"));
+        tagBiodiesel = optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("c:biodiesel"));
 
         this.state = state;
     }
@@ -71,7 +75,17 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
     private SmartFluidTankBehaviour tank;
     public LargeDieselGeneratorBlockEntity mainTankBE;
 
-
+    @Override
+    public @Nullable Storage<FluidVariant> getFluidStorage(Direction side) {
+        if (state.getValue(PIPE)) {
+            if (side == Direction.UP)
+                if(FrontEngine != null)
+                    return FrontEngine.tank.getCapability();
+                else
+                    return tank.getCapability();
+        }
+        return null;
+    }
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
