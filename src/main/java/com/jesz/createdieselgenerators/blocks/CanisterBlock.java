@@ -11,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -47,7 +48,8 @@ public class CanisterBlock extends Block implements IBE<CanisterBlockEntity>, Pr
         if (stack == null)
             return;
         withBlockEntityDo(level, pos, be -> {
-            be.setCapacityEnchantLevel(stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get()));
+            var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+            be.setCapacityEnchantLevel(v);
             if (stack.isEnchanted())
                 be.setEnchantmentTag(stack.getEnchantmentTags());
             if (stack.hasCustomHoverName())

@@ -8,6 +8,9 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.infrastructure.config.AllConfigs;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -17,13 +20,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,9 +32,9 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
 
     private static final int MAX_SIZE = 3;
 
-    protected LazyOptional<IFluidHandler> fluidCapability;
+
     protected boolean forceFluidLevelUpdate;
-    protected FluidTank tankInventory;
+    protected SmartFluidTank tankInventory;
     protected BlockPos controller;
     protected BlockPos lastKnownPos;
     protected boolean updateConnectivity;
@@ -52,12 +48,10 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
     public OilBarrelBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         tankInventory = createInventory();
-        fluidCapability = LazyOptional.of(() -> tankInventory);
         forceFluidLevelUpdate = true;
         updateConnectivity = false;
         height = 1;
         width = 1;
-        refreshCapability();
     }
 
     @Override
@@ -159,9 +153,10 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
 
     public void applyFluidTankSize(int blocks) {
         tankInventory.setCapacity(blocks * getCapacityMultiplier());
-        int overflow = tankInventory.getFluidAmount() - tankInventory.getCapacity();
-        if (overflow > 0)
-            tankInventory.drain(overflow, IFluidHandler.FluidAction.EXECUTE);
+        long overflow = tankInventory.getFluidAmount() - tankInventory.getCapacity();
+        if (overflow > 0) {
+            TransferUtil.extractAnyFluid(tankInventory, overflow);
+        }
         forceFluidLevelUpdate = true;
     }
 
@@ -177,7 +172,6 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
 
         onFluidStackChanged(tankInventory.getFluid());
 
-        refreshCapability();
         setChanged();
         sendData();
     }
@@ -199,20 +193,8 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
         if (controller.equals(this.controller))
             return;
         this.controller = controller;
-        refreshCapability();
         setChanged();
         sendData();
-    }
-
-    private void refreshCapability() {
-        LazyOptional<IFluidHandler> oldCap = fluidCapability;
-        fluidCapability = LazyOptional.of(() -> handlerForCapability());
-        oldCap.invalidate();
-    }
-
-    private IFluidHandler handlerForCapability() {
-        return isController() ? tankInventory
-                : getControllerBE() != null ? getControllerBE().handlerForCapability() : new FluidTank(0);
     }
 
     @Override
@@ -233,8 +215,7 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
         OilBarrelBlockEntity controllerBE = getControllerBE();
         if (controllerBE == null)
             return false;
-        return containedFluidTooltip(tooltip, isPlayerSneaking,
-                controllerBE.getCapability(ForgeCapabilities.FLUID_HANDLER));
+        return containedFluidTooltip(tooltip, isPlayerSneaking, controllerBE.tankInventory);
     }
 
     @Override
@@ -260,7 +241,7 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
             tankInventory.setCapacity(getTotalTankSize() * getCapacityMultiplier());
             tankInventory.readFromNBT(compound.getCompound("TankContent"));
             if (tankInventory.getSpace() < 0)
-                tankInventory.drain(-tankInventory.getSpace(), IFluidHandler.FluidAction.EXECUTE);
+                TransferUtil.extractAnyFluid(tankInventory, -tankInventory.getSpace());
         }
 
         if (!clientPacket)
@@ -303,16 +284,6 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
         if (queuedSync)
             compound.putBoolean("LazySync", true);
         forceFluidLevelUpdate = false;
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (!fluidCapability.isPresent())
-            refreshCapability();
-        if (cap == ForgeCapabilities.FLUID_HANDLER)
-            return fluidCapability.cast();
-        return super.getCapability(cap, side);
     }
 
     @Override
@@ -380,7 +351,7 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
     }
 
     @Override
-    public int getTankSize(int tank) {
+    public long getTankSize(int tank) {
         return getCapacityMultiplier();
     }
 
@@ -390,7 +361,7 @@ public class OilBarrelBlockEntity extends SmartBlockEntity implements IMultiBloc
     }
 
     @Override
-    public IFluidTank getTank(int tank) {
+    public FluidTank getTank(int tank) {
         return tankInventory;
     }
 

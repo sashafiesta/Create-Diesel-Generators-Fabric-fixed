@@ -12,6 +12,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,11 +24,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -206,7 +203,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
                     .forGoggles(tooltip, 1);
 
         }
-        return containedFluidTooltip(tooltip, isPlayerSneaking, frontEngine.tank.getCapability().cast());
+        return containedFluidTooltip(tooltip, isPlayerSneaking, frontEngine.tank.getCapability());
     }
     int t = 0;
     int totalSize = 0;
@@ -225,8 +222,8 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         LargeDieselGeneratorBlockEntity frontEngine = this.frontEngine.get();
 
         if(!tank.isEmpty() && engineForward != null && frontEngine != null){
-            frontEngine.tank.getPrimaryHandler().fill(tank.getPrimaryHandler().getFluid(), IFluidHandler.FluidAction.EXECUTE);
-            tank.getPrimaryHandler().drain(tank.getPrimaryHandler().getFluid(), IFluidHandler.FluidAction.EXECUTE);
+            TransferUtil.insertFluid(tank.getPrimaryHandler(), tank.getPrimaryHandler().getFluid());
+            TransferUtil.extractFluid(tank.getPrimaryHandler(), tank.getPrimaryHandler().getFluid());
         }
         if(state.getValue(POWERED))
             validFuel = false;

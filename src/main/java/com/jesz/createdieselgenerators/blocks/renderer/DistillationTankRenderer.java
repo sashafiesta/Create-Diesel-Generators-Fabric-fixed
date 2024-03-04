@@ -6,19 +6,19 @@ import com.jozufozu.flywheel.util.transform.TransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.content.fluids.tank.FluidTankRenderer;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
 import com.simibubi.create.foundation.fluid.FluidRenderer;
 import com.simibubi.create.foundation.render.CachedBufferer;
 import com.simibubi.create.foundation.utility.Iterate;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class DistillationTankRenderer extends SafeBlockEntityRenderer<DistillationTankBlockEntity> {
     public DistillationTankRenderer(BlockEntityRendererProvider.Context context){}
@@ -46,15 +46,12 @@ public class DistillationTankRenderer extends SafeBlockEntityRenderer<Distillati
             return;
         float clampedLevel = Mth.clamp(level * totalHeight, 0, totalHeight);
 
-        FluidTank tank = be.tankInventory;
-        FluidStack fluidStack = tank.getFluid();
+        var tank = be.tankInventory;
+        var fluidStack = tank.getFluid();
 
         if (fluidStack.isEmpty())
             return;
-
-        boolean top = fluidStack.getFluid()
-                .getFluidType()
-                .isLighterThanAir();
+        boolean top = FluidVariantAttributes.isLighterThanAir(fluidStack.getType());
 
         float xMin = tankHullWidth;
         float xMax = xMin + be.getWidth() - 2 * tankHullWidth;

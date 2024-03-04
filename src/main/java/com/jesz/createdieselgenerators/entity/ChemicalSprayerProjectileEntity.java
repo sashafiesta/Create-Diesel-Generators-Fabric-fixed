@@ -8,6 +8,8 @@ import com.simibubi.create.content.fluids.FluidFX;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockHelper;
+import io.github.fabricators_of_create.porting_lib.tags.Tags;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,8 +40,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.fluids.FluidStack;
 
 public class ChemicalSprayerProjectileEntity extends AbstractHurtingProjectile {
     public FluidStack stack;

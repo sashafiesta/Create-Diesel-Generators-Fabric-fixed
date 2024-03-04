@@ -2,8 +2,8 @@ package com.jesz.createdieselgenerators.mixins;
 
 import com.jesz.createdieselgenerators.blocks.entity.OilBarrelBlockEntity;
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

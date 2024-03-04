@@ -4,16 +4,14 @@ import com.jesz.createdieselgenerators.blocks.BlockRegistry;
 import com.jesz.createdieselgenerators.blocks.entity.DistillationTankBlockEntity;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class DistillationControllerItem extends Item {
     public DistillationControllerItem(Properties properties) {

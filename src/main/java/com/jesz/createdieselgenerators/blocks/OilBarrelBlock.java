@@ -5,6 +5,7 @@ import com.jesz.createdieselgenerators.blocks.entity.OilBarrelBlockEntity;
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
+import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -27,8 +28,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.util.ForgeSoundType;
 
 import java.util.Locale;
 
@@ -207,8 +206,8 @@ public class OilBarrelBlock extends Block implements IBE<OilBarrelBlockEntity>, 
 
     // Tanks are less noisy when placed in batch
     public static final SoundType SILENCED_METAL =
-            new ForgeSoundType(0.1F, 1.5F, () -> SoundEvents.METAL_BREAK, () -> SoundEvents.METAL_STEP,
-                    () -> SoundEvents.METAL_PLACE, () -> SoundEvents.METAL_HIT, () -> SoundEvents.METAL_FALL);
+            new SoundType(0.1F, 1.5F, SoundEvents.METAL_BREAK,  SoundEvents.METAL_STEP,
+                    SoundEvents.METAL_PLACE,  SoundEvents.METAL_HIT, SoundEvents.METAL_FALL);
 
     @Override
     public SoundType getSoundType(BlockState state, LevelReader world, BlockPos pos, Entity entity) {

@@ -4,6 +4,7 @@ import com.jesz.createdieselgenerators.config.ConfigRegistry;
 import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.content.equipment.armor.CapacityEnchantment;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,10 +19,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
-import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -58,12 +55,15 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
 
     @Override
     public boolean isEnchantable(ItemStack stack) { return true; }
+
+
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         if(enchantment == AllEnchantments.CAPACITY.get())
             return true;
         return super.canApplyAtEnchantingTable(stack, enchantment);
     }
+
     @Override
     public int getBarColor(ItemStack stack) {
         return 0xEFEFEF;
@@ -94,6 +94,7 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
             return new CanisterFluidHandlerItemStack(stack, ConfigRegistry.CANISTER_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get()) * ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get());
         return new CanisterFluidHandlerItemStack(stack, ConfigRegistry.CANISTER_CAPACITY.get());
     }
+
     static class CanisterFluidHandlerItemStack extends FluidHandlerItemStack{
         public CanisterFluidHandlerItemStack(@NotNull ItemStack container, int capacity) {
             super(container, capacity);

@@ -148,7 +148,7 @@ public static final BlockEntry<DieselGeneratorBlock> DIESEL_ENGINE = REGISTRATE.
             .simpleItem()
             .register();
 
-    public static final BlockEntry<StairBlock> CHIP_WOOD_STAIRS = REGISTRATE.block("chip_wood_stairs", p -> new StairBlock(Blocks.ANDESITE_STAIRS::defaultBlockState, p))
+    public static final BlockEntry<StairBlock> CHIP_WOOD_STAIRS = REGISTRATE.block("chip_wood_stairs", p -> new StairBlock(Blocks.ANDESITE_STAIRS.defaultBlockState(), p))
             .initialProperties(() -> Blocks.OAK_PLANKS)
             .properties(p -> p)
             .simpleItem()
@@ -171,7 +171,7 @@ public static final BlockEntry<DieselGeneratorBlock> DIESEL_ENGINE = REGISTRATE.
             .simpleItem()
             .register();
 
-    public static final BlockEntry<StairBlock> ASPHALT_STAIRS = REGISTRATE.block("asphalt_stairs", p -> new StairBlock(Blocks.ANDESITE_STAIRS::defaultBlockState, p))
+    public static final BlockEntry<StairBlock> ASPHALT_STAIRS = REGISTRATE.block("asphalt_stairs", p -> new StairBlock(Blocks.ANDESITE_STAIRS.defaultBlockState(), p))
             .properties(p -> p.mapColor(MapColor.COLOR_BLACK))
             .properties(p -> p.sound(SoundType.STONE))
             .properties(p -> p.noOcclusion())

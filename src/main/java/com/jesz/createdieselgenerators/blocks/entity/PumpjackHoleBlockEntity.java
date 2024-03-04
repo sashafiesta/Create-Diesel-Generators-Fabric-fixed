@@ -4,6 +4,7 @@ import com.jesz.createdieselgenerators.CreateDieselGenerators;
 import com.jesz.createdieselgenerators.world.OilChunksSavedData;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.equipment.goggles.IHaveHoveringInformation;
+import com.simibubi.create.content.fluids.hosePulley.HosePulleyBlockEntity;
 import com.simibubi.create.content.fluids.pipes.EncasedPipeBlock;
 import com.simibubi.create.content.fluids.pipes.GlassFluidPipeBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -11,9 +12,12 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,12 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -118,9 +116,9 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
                 }else if(bs.getBlock() instanceof GlassFluidPipeBlock) {
                     if (!(bs.getValue(AXIS) == Direction.Axis.Y))
                         break;
-                }else if(bs.is(optionalTag(ForgeRegistries.BLOCKS, new ResourceLocation("createdieselgenerators:pumpjack_pipe")))){
+                }else if(bs.is(optionalTag(BuiltInRegistries.BLOCK, new ResourceLocation("createdieselgenerators:pumpjack_pipe")))){
                     continue;
-                } else if (bs.is(optionalTag(ForgeRegistries.BLOCKS, new ResourceLocation("createdieselgenerators:oil_deposit")))) {
+                } else if (bs.is(optionalTag(BuiltInRegistries.BLOCK, new ResourceLocation("createdieselgenerators:oil_deposit")))) {
                     v = true;
                     break;
                 } else
@@ -181,7 +179,8 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
                 return;
             FluidStack oilStack = new FluidStack(stackList.get(0), subtractedAmount);
 
-            tank.getPrimaryHandler().fill(oilStack, IFluidHandler.FluidAction.EXECUTE);
+            TransferUtil.insertFluid(tank.getPrimaryHandler(), oilStack);
+            //tank.getPrimaryHandler().fill(oilStack, IFluidHandler.FluidAction.EXECUTE);
         }
     }
     @Override

@@ -8,6 +8,7 @@ import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.fluids.tank.BoilerHeaters;
 import com.simibubi.create.content.fluids.tank.FluidTankBlock;
+import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -15,6 +16,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.fluid.SmartFluidTank;
 import com.simibubi.create.foundation.recipe.RecipeFinder;
 import com.simibubi.create.foundation.utility.animation.LerpedFloat;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -26,14 +29,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,12 +37,12 @@ import java.util.stream.Collectors;
 
 public class DistillationTankBlockEntity extends SmartBlockEntity implements IMultiBlockEntityContainer.Fluid, IHaveGoggleInformation {
     private static final int MAX_SIZE = 3;
-
+//FluidTankBlockEntity
     public float progress;
     public int heat;
-    protected LazyOptional<IFluidHandler> fluidCapability;
+    //protected LazyOptional<IFluidHandler> fluidCapability;
     protected boolean forceFluidLevelUpdate;
-    public FluidTank tankInventory;
+    public SmartFluidTank tankInventory;
     protected BlockPos controller;
     protected BlockPos lastKnownPos;
     protected boolean updateConnectivity;
@@ -68,7 +63,7 @@ public class DistillationTankBlockEntity extends SmartBlockEntity implements IMu
     public DistillationTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         tankInventory = createInventory();
-        fluidCapability = LazyOptional.of(() -> tankInventory);
+        //fluidCapability = LazyOptional.of(() -> tankInventory);
         forceFluidLevelUpdate = true;
         updateConnectivity = false;
         window = false;
@@ -689,8 +684,7 @@ public class DistillationTankBlockEntity extends SmartBlockEntity implements IMu
         applyFluidTankSize(blocks);
     }
 
-    @Override
-    public IFluidTank getTank(int tank) {
+    public FluidTank getTankInventory(int tank) {
         return tankInventory;
     }
 
