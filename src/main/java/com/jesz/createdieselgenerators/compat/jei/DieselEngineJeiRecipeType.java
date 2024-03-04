@@ -1,22 +1,21 @@
 package com.jesz.createdieselgenerators.compat.jei;
 
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import com.jesz.createdieselgenerators.other.FuelTypeManager;
 import mezz.jei.api.recipe.RecipeType;
-
-import java.util.List;
+import net.minecraft.world.level.material.Fluid;
 
 public class DieselEngineJeiRecipeType {
-    public static final RecipeType<DieselEngineJeiRecipeType> DIESEL_BURNING =
-            RecipeType.create("createdieselgenerators", "diesel_burning", DieselEngineJeiRecipeType.class);
+    public static final RecipeType<DieselEngineJeiRecipeType> DIESEL_COMBUSTION =
+            RecipeType.create("createdieselgenerators", "diesel_combustion", DieselEngineJeiRecipeType.class);
 
-    int type;
-    float speed;
-    List<FluidStack> fluids;
-    float stress;
-    public DieselEngineJeiRecipeType(int type, float speed, float stress, List<FluidStack> fluids) {
-        this.stress = stress;
-        this.speed = speed;
-        this.type = type;
-        this.fluids = fluids;
+    public int burnRate;
+    public float speed;
+    public Fluid fluid;
+    public float stress;
+    public DieselEngineJeiRecipeType(Fluid fluid) {
+        this.fluid = fluid;
+        speed = FuelTypeManager.getGeneratedSpeed(fluid);
+        stress = FuelTypeManager.getGeneratedStress(fluid);
+        burnRate = FuelTypeManager.getBurnRate(fluid);
     }
 }

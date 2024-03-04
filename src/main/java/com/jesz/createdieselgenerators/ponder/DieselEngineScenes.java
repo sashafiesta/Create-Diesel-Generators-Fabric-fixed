@@ -1,25 +1,32 @@
 package com.jesz.createdieselgenerators.ponder;
 
 import com.jesz.createdieselgenerators.fluids.FluidRegistry;
+import com.jesz.createdieselgenerators.items.ItemRegistry;
+import com.jesz.createdieselgenerators.other.FuelTypeManager;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
-import com.simibubi.create.foundation.ponder.ElementLink;
-import com.simibubi.create.foundation.ponder.SceneBuilder;
-import com.simibubi.create.foundation.ponder.SceneBuildingUtil;
-import com.simibubi.create.foundation.ponder.Selection;
+import com.simibubi.create.foundation.ponder.*;
+import com.simibubi.create.foundation.ponder.element.EntityElement;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.ponder.element.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
-import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.POWERED;
+import java.util.Random;
+import java.util.function.Supplier;
+
+import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.SILENCED;
 import static com.jesz.createdieselgenerators.blocks.LargeDieselGeneratorBlock.PIPE;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.UP;
 
 public class DieselEngineScenes {
+    static FluidStack currentFuel;
     public static void small(SceneBuilder scene, SceneBuildingUtil util) {
         scene.title("diesel_engine", "Setting up a Diesel Engine");
         scene.configureBasePlate(0, 0, 3);
@@ -37,7 +44,6 @@ public class DieselEngineScenes {
         ElementLink<WorldSectionElement> engineElement =
                 scene.world.showIndependentSection(engine, Direction.DOWN);
         scene.world.moveSection(engineElement, util.vector.of(0, -1, 0), 0);
-        scene.world.modifyBlock(util.grid.at(1, 2, 1), s -> s.setValue(POWERED, false)  , false);
         scene.idle(15);
         scene.overlay.showText(50)
                 .attachKeyFrame()
@@ -49,38 +55,128 @@ public class DieselEngineScenes {
         scene.idle(15);
         scene.world.moveSection(engineElement, util.vector.of(0, 1, 0), 0);
         scene.world.showIndependentSection(engine, Direction.DOWN);
-        scene.world.modifyBlock(enginePos, s -> s.setValue(POWERED, false)  , false);
+
         scene.world.showSection(pipe, Direction.WEST);
         scene.world.showSection(tank, Direction.NORTH);
         scene.idle(30);
+        FuelTypeManager.tryPopulateTags();
+        Supplier<FluidStack> content = () -> {
+            currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 16000);
+            return currentFuel;
+        };
+        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be -> be.getTankInventory()
+                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
         scene.world.showSection(cogs, Direction.NORTH);
         scene.idle(30);
-        scene.overlay.showText(70)
+        scene.overlay.showText(55)
                 .attachKeyFrame()
                 .text("Give it some fuel and it will produce kinetic energy.")
                 .pointAt(util.vector.blockSurface(util.grid.at(1, 2, 1), Direction.NORTH))
                 .placeNearTarget();
         scene.idle(30);
+
+        scene.idle(30);
         scene.world.modifyKineticSpeed(cogs, f -> 16f);
         scene.world.modifyKineticSpeed(pump, f -> -32f);
         scene.effects.rotationSpeedIndicator(util.grid.at(3, 0, 2));
-
-        FluidStack content = new FluidStack(FluidRegistry.BIODIESEL.get()
-                .getSource(), 300);
-        //scene.world.modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content));
-        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be ->
-                TransferUtil.extractFluid(be.getTankInventory(), content));
         scene.world.modifyKineticSpeed(engine, f -> 96f);
-        scene.world.modifyBlock(enginePos, s -> s.setValue(POWERED, true)  , false);
         scene.effects.rotationSpeedIndicator(enginePos);
-        scene.idle(20);
-        scene.world.modifyKineticSpeed(cogs, f -> 0f);
-        scene.world.modifyKineticSpeed(pump, f -> 0f);
         scene.idle(20);
         scene.world.showSection(util.select.position(util.grid.at(1, 2, 0)), Direction.DOWN);
         scene.world.showSection(util.select.position(util.grid.at(1, 2, 2)), Direction.DOWN);
         scene.world.modifyKineticSpeed(util.select.fromTo(1, 2, 0, 1, 2, 2),f -> 96f);
         scene.idle(60);
+    }
+    public static void huge(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("huge_diesel_engine", "Setting up a Diesel Engine");
+        scene.configureBasePlate(0, 0, 5);
+        scene.showBasePlate();
+
+        Selection tank = util.select.fromTo(4, 1, 3, 4, 2, 3);
+        Selection pipes = util.select.fromTo(0, 2, 0, 3, 2, 4);
+        Selection engines = util.select.fromTo(0, 1, 0, 2, 1, 4);
+        Selection shafts = util.select.fromTo(0, 1, 2, 2, 1, 2);
+        Selection shafts2 = util.select.fromTo(3, 1, 2, 4, 1, 2);
+
+        scene.world.showSection(engines, Direction.DOWN);
+        scene.idle(10);
+        scene.overlay.showText(20)
+                .attachKeyFrame()
+                .text("Huge Diesel Engines connect to Shafts ...")
+                .pointAt(util.vector.blockSurface(util.grid.at(0, 1, 0), Direction.NORTH))
+                .placeNearTarget();
+        scene.idle(30);
+        scene.world.showSection(shafts2, Direction.DOWN);
+        scene.idle(15);
+        scene.overlay.showControls(new InputWindowElement(util.vector.topOf(2, 1, 4), Pointing.DOWN).withItem(new ItemStack(AllItems.WRENCH.get())), 15);
+        scene.idle(20);
+        scene.world.modifyBlock(util.grid.at(2, 1, 4), s -> s.setValue(UP, false), false);
+        scene.idle(15);
+        scene.overlay.showControls(new InputWindowElement(util.vector.topOf(2, 1, 4), Pointing.DOWN).withItem(new ItemStack(AllItems.WRENCH.get())), 15);
+        scene.idle(20);
+        scene.world.modifyBlock(util.grid.at(2, 1, 4), s -> s.setValue(UP, true), false);
+        scene.idle(15);
+        scene.world.showSection(tank, Direction.DOWN);
+        scene.idle(15);
+        scene.world.showSection(pipes, Direction.DOWN);
+        scene.idle(15);
+
+        FuelTypeManager.tryPopulateTags();
+        Supplier<FluidStack> content = () -> {
+            currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 16000);
+            return currentFuel;
+        };
+        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> be.getTankInventory()
+                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
+        scene.idle(15);
+        scene.overlay.showText(40)
+                .attachKeyFrame()
+                .text("... they will start generating Kinetic Energy, once you give them some fuel.")
+                .pointAt(util.vector.blockSurface(util.grid.at(0, 1, 0), Direction.NORTH))
+                .placeNearTarget();
+        scene.idle(50);
+        scene.world.modifyKineticSpeed(shafts2, f -> 16f);
+        scene.world.modifyKineticSpeed(shafts, f -> 16f);
+        scene.world.modifyKineticSpeed(util.select.position(3, 2, 3), f -> -32f);
+        scene.idle(30);
+        scene.world.modifyKineticSpeed(shafts2, f -> 128f);
+        scene.world.modifyKineticSpeed(shafts, f -> 128f);
+        scene.world.modifyKineticSpeed(util.select.position(3, 2, 3), f -> -64f);
+        scene.idle(10);
+    }
+    public static void silencer(SceneBuilder scene, SceneBuildingUtil util){
+        scene.title("engine_silencer", "Applying an Engine Silencer");
+        scene.configureBasePlate(0, 0, 3);
+        scene.showBasePlate();
+
+        BlockPos engine = util.grid.at(1, 1, 1);
+
+        ElementLink<EntityElement> entity1 =
+                scene.world.createItemEntity(new Vec3(1, 2, 1), util.vector.of(0, 0.2, 0), ItemRegistry.ENGINE_SILENCER.asStack());
+
+        scene.overlay.showText(60)
+                .attachKeyFrame()
+                .colored(PonderPalette.GREEN)
+                .text("Engine Silencers are used to make Diesel Engines Silent.")
+                .pointAt(util.vector.centerOf(engine))
+                .placeNearTarget();
+        scene.idle(70);
+        scene.world.modifyEntity(entity1, Entity::discard);
+        scene.world.showSection(util.select.position(engine), Direction.DOWN);
+
+        scene.world.modifyKineticSpeed(util.select.position(engine), f -> 96f);
+        scene.idle(20);
+        scene.overlay.showControls(new InputWindowElement(util.vector.topOf(1, 1, 1), Pointing.DOWN).withItem(ItemRegistry.ENGINE_SILENCER.asStack()),
+                20);
+        scene.world.modifyBlock(engine, s -> s.setValue(SILENCED, true), false);
+        scene.idle(20);
+        scene.overlay.showText(60)
+                .attachKeyFrame()
+                .colored(PonderPalette.GREEN)
+                .text("Once you apply an Engine Silencer, the Diesel Engine will stop making any noises.")
+                .pointAt(util.vector.centerOf(engine))
+                .placeNearTarget();
+        scene.idle(70);
     }
     public static void modular(SceneBuilder scene, SceneBuildingUtil util) {
         scene.title("large_diesel_engine", "Setting up a Modular Diesel Engine");
@@ -100,7 +196,7 @@ public class DieselEngineScenes {
 
         scene.idle(15);
         scene.world.showSection(mainEngine, Direction.DOWN);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, false), false);
+
         scene.idle(15);
         scene.overlay.showText(50)
                 .attachKeyFrame()
@@ -133,14 +229,15 @@ public class DieselEngineScenes {
         scene.world.modifyKineticSpeed(pump, s -> 32f);
         scene.idle(10);
 
-        FluidStack content = new FluidStack(FluidRegistry.BIODIESEL.get()
-                .getSource(), 300);
-        //scene.world.modifyBlockEntity(tankPos, FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content));
-
-        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> TransferUtil.extractFluid(be.getTankInventory(), content));
+        FuelTypeManager.tryPopulateTags();
+        Supplier<FluidStack> content = () -> {
+            currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 1600);
+            return currentFuel;
+        };
+        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> be.getTankInventory()
+                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
 
         scene.world.modifyKineticSpeed(mainEngine, s -> 96f);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
 
         scene.effects.rotationSpeedIndicator(util.grid.at(1, 1, 1));
 
@@ -151,7 +248,7 @@ public class DieselEngineScenes {
                 .text("... They can be stacked.")
                 .pointAt(util.vector.blockSurface(util.grid.at(1, 1, 1), Direction.NORTH))
                 .placeNearTarget();
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
+
         scene.idle(60);
 
         scene.world.showSection(engines, Direction.EAST);
@@ -159,28 +256,18 @@ public class DieselEngineScenes {
         scene.world.modifyBlocks(engines, s -> s.setValue(PIPE, true), false);
 
         scene.world.modifyKineticSpeed(engines, s -> 96f);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
-        scene.world.modifyBlocks(engines, s -> s.setValue(POWERED, true), false);
         scene.idle(20);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
-        scene.world.modifyBlocks(engines, s -> s.setValue(POWERED, true), false);
         scene.overlay.showControls(new InputWindowElement(util.vector.topOf(1, 1, 2), Pointing.DOWN).withItem(new ItemStack(AllItems.WRENCH.get())), 15);
         scene.world.modifyBlock(util.grid.at(1,1,2), s -> s.setValue(PIPE, false), false);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
-        scene.world.modifyBlocks(engines, s -> s.setValue(POWERED, true), false);
         scene.idle(30);
         scene.overlay.showControls(new InputWindowElement(util.vector.topOf(1, 1, 3), Pointing.DOWN).withItem(new ItemStack(AllItems.WRENCH.get())), 15);
         scene.world.modifyBlock(util.grid.at(1,1,3), s -> s.setValue(PIPE, false), false);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
-        scene.world.modifyBlocks(engines, s -> s.setValue(POWERED, true), false);
         scene.idle(30);
         scene.overlay.showText(50)
                 .attachKeyFrame()
                 .text("They will generate stress proportionally to how much engines you stack.")
                 .pointAt(util.vector.blockSurface(util.grid.at(1, 1, 1), Direction.NORTH))
                 .placeNearTarget();
-        scene.world.modifyBlocks(engines, s -> s.setValue(POWERED, true), false);
-        scene.world.modifyBlock(util.grid.at(1, 1, 1), s -> s.setValue(POWERED, true), false);
         scene.idle(60);
     }
 }
