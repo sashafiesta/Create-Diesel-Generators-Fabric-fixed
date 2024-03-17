@@ -17,7 +17,7 @@
       "com.jesz.createdieselgenerators.CreateDieselGenerators"
     ],
     "client": [
-      "com.jesz.createdieselgenerators.CreateDieselGenerators"
+      "com.jesz.createdieselgenerators.CreateDieselGeneratorsClient"
     ],
     "jei_mod_plugin": [
       "com.jesz.createdieselgenerators.compat.jei.CDGJEI"

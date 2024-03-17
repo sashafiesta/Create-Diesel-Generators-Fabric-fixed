@@ -8,8 +8,10 @@ import com.simibubi.create.content.fluids.FluidFX;
 import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockHelper;
+import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvents;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.util.PotionHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -85,7 +87,8 @@ public class ChemicalSprayerProjectileEntity extends AbstractHurtingProjectile {
         if(FluidHelper.isTag(stack, Tags.Fluids.MILK)){
             if(hit.getEntity() instanceof LivingEntity le && le.isAffectedByPotions()) {
                 ItemStack curativeItem = new ItemStack(Items.MILK_BUCKET);
-                le.curePotionEffects(curativeItem);
+                PotionHelper.curePotionEffects(le, curativeItem);
+                //le.curePotionEffects(curativeItem);
             }
         }
 
@@ -157,7 +160,7 @@ public class ChemicalSprayerProjectileEntity extends AbstractHurtingProjectile {
             }
 
             HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-            if (hitresult.getType() != HitResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, hitresult)) {
+            if (hitresult.getType() != HitResult.Type.MISS && !EntityEvents.PROJECTILE_IMPACT.invoker().onImpact(this, hitresult)) {
                 this.onHit(hitresult);
             }
 

@@ -32,7 +32,7 @@ public class DieselEngineMovementBehaviour implements MovementBehaviour {
         double trainSpeed = context.motion.length()*2;
         if(ConfigRegistry.ENGINES_EMIT_SOUND_ON_TRAINS.get() && !entity.getCarriage().train.derailed && trainSpeed >= 0.1){
             if(context.data.getInt("tick") >= 10/ Mth.clamp(trainSpeed*10, 4, 5)){
-                context.world.playLocalSound(context.position.x, context.position.y, context.position.z, SoundRegistry.DIESEL_ENGINE_SOUND.get(), SoundSource.BLOCKS, 0.5f, (float) Mth.clamp(context.state.hasProperty(TURBOCHARGED) && context.state.getValue(TURBOCHARGED) ? 3f*trainSpeed : 2f*trainSpeed, 1, 2.4), false);
+                context.world.playLocalSound(context.position.x, context.position.y, context.position.z, SoundRegistry.DIESEL_ENGINE_SOUND.getMainEvent(), SoundSource.BLOCKS, 0.5f, (float) Mth.clamp(context.state.hasProperty(TURBOCHARGED) && context.state.getValue(TURBOCHARGED) ? 3f*trainSpeed : 2f*trainSpeed, 1, 2.4), false);
 
                 context.data.putInt("tick", 0);
             }

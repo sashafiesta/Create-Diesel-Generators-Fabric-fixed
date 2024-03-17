@@ -4,7 +4,13 @@ import com.jesz.createdieselgenerators.config.ConfigRegistry;
 import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.content.equipment.armor.CapacityEnchantment;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.item.FluidHandlerItemStack;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,13 +23,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.ICapacityEnchantable {
+public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.ICapacityEnchantable, CustomEnchantingBehaviorItem, FluidStorageItem {
     public CanisterBlockItem(Block block, Properties properties) {
         super(block, properties.stacksTo(1));
     }
@@ -39,7 +46,17 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
                 this.getBlock().appendHoverText(stack, level, components, tooltipFlag);
                 return;
             }
-            components.add(Lang.fluidName(fStack).component().withStyle(ChatFormatting.GRAY).append(" ").append(Lang.number(fStack.getAmount()).style(ChatFormatting.GOLD).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD)).append(Component.literal(" / ")).append(Lang.number(ConfigRegistry.CANISTER_CAPACITY.get() + ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get()*stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get())).style(ChatFormatting.GRAY).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
+            var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+            components.add(Lang.fluidName(fStack).component()
+                    .withStyle(ChatFormatting.GRAY)
+                    .append(" ")
+                    .append(Lang.number(fStack.getAmount())
+                            .style(ChatFormatting.GOLD).component())
+                    .append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" / "))
+                    .append(Lang.number(ConfigRegistry.CANISTER_CAPACITY.get() + ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get() * v)
+                            .style(ChatFormatting.GRAY).component())
+                    .append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
             this.getBlock().appendHoverText(stack, level, components, tooltipFlag);
             return;
         }
@@ -61,7 +78,7 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         if(enchantment == AllEnchantments.CAPACITY.get())
             return true;
-        return super.canApplyAtEnchantingTable(stack, enchantment);
+        return false;
     }
 
     @Override
@@ -84,25 +101,28 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
         if(stack.getTag() == null)
             return 0;
         CompoundTag primaryTankCompound = stack.getTag().getCompound("BlockEntityTag").getList("Tanks", Tag.TAG_COMPOUND).getCompound(0).getCompound("TankContent");
-
-        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(primaryTankCompound).getAmount()/(float)(ConfigRegistry.CANISTER_CAPACITY.get()+ ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get()*stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get())), 0, 1));
+        var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(primaryTankCompound).getAmount()/(float)(ConfigRegistry.CANISTER_CAPACITY.get()+ ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get() * v), 0, 1));
     }
+
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
-        if(!ModList.get().isLoaded("dungeons_libraries"))
-            return new CanisterFluidHandlerItemStack(stack, ConfigRegistry.CANISTER_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get()) * ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get());
-        return new CanisterFluidHandlerItemStack(stack, ConfigRegistry.CANISTER_CAPACITY.get());
+    public Storage<FluidVariant> getFluidStorage(ItemStack stack, ContainerItemContext context) {
+        return new CanisterFluidHandlerItemStack(context, ConfigRegistry.CANISTER_CAPACITY.get());
     }
 
-    static class CanisterFluidHandlerItemStack extends FluidHandlerItemStack{
-        public CanisterFluidHandlerItemStack(@NotNull ItemStack container, int capacity) {
+    static class CanisterFluidHandlerItemStack extends FluidHandlerItemStack {
+
+        /**
+         * @param capacity  The maximum capacity of this fluid tank.
+         */
+        public CanisterFluidHandlerItemStack(@NotNull ContainerItemContext container, long capacity) {
             super(container, capacity);
         }
 
         @Override
         public FluidStack getFluid() {
-            CompoundTag tagCompound = container.getTag();
+            CompoundTag tagCompound = container.getItemVariant().getNbt();
             if (tagCompound == null || !tagCompound.getCompound("BlockEntityTag").contains("Tanks")) {
                 return FluidStack.EMPTY;
             }
@@ -110,11 +130,11 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
                 return FluidStack.EMPTY;
             return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound("BlockEntityTag").getList("Tanks", CompoundTag.TAG_COMPOUND).getCompound(0).getCompound("TankContent"));
         }
+
         @Override
-        protected void setFluid(FluidStack fluid)
-        {
-            if (!container.hasTag()) {
-                container.setTag(new CompoundTag());
+        protected boolean setFluid(FluidStack fluid, TransactionContext tx) {
+            if (!container.getItemVariant().hasNbt()) {
+                container.getItemVariant().copyOrCreateNbt();
             }
 
             CompoundTag fluidTag = new CompoundTag();
@@ -124,14 +144,21 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
             ListTag list = new ListTag();
             list.add(fluidTag);
             tag.put("Tanks", list);
-            container.getTag().put("BlockEntityTag", tag);
+            container.getItemVariant().getNbt().put("BlockEntityTag", tag);
+            return true;
         }
 
+
+
         @Override
-        protected void setContainerToEmpty()
-        {
-            if(container.getTag() != null)
-                container.getTag().getCompound("BlockEntityTag").remove("Tanks");
+        protected boolean setContainerToEmpty(TransactionContext tx) {
+            if(container.getItemVariant().getNbt() != null) {
+                container.getItemVariant().getNbt().getCompound("BlockEntityTag").remove("Tanks");
+                return true;
+
+            }
+
+            return false;
         }
     }
 }

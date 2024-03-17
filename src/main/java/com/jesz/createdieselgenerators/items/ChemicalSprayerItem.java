@@ -7,7 +7,12 @@ import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.content.equipment.armor.CapacityEnchantment;
 import com.simibubi.create.foundation.item.CustomArmPoseItem;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.item.FluidHandlerItemStack;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -23,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 
@@ -30,7 +36,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, CapacityEnchantment.ICapacityEnchantable {
+public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, CapacityEnchantment.ICapacityEnchantable, CustomEnchantingBehaviorItem, FluidStorageItem {
     boolean lighter;
     public ChemicalSprayerItem(Properties properties, boolean lighter) {
         super(properties.stacksTo(1));
@@ -46,7 +52,8 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
                 components.add(Component.translatable("createdieselgenerators.tooltip.empty").withStyle(ChatFormatting.GRAY));
                 return;
             }
-            components.add(Lang.fluidName(fStack).component().withStyle(ChatFormatting.GRAY).append(" ").append(Lang.number(fStack.getAmount()).style(ChatFormatting.GOLD).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD)).append(Component.literal(" / ")).append(Lang.number(ConfigRegistry.TOOL_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get())*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()).style(ChatFormatting.GRAY).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
+            var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+            components.add(Lang.fluidName(fStack).component().withStyle(ChatFormatting.GRAY).append(" ").append(Lang.number(fStack.getAmount()).style(ChatFormatting.GOLD).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD)).append(Component.literal(" / ")).append(Lang.number(ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()).style(ChatFormatting.GRAY).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
             return;
         }
         components.add(Component.translatable("createdieselgenerators.tooltip.empty").withStyle(ChatFormatting.GRAY));
@@ -83,11 +90,12 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
 
     @Override
     public boolean isEnchantable(ItemStack stack) { return true; }
+
     @Override
     public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
         if(enchantment == AllEnchantments.CAPACITY.get())
             return true;
-        return super.canApplyAtEnchantingTable(stack, enchantment);
+        return false;
     }
     @Override
     public void onUseTick(Level level, LivingEntity player, ItemStack stack, int count) {
@@ -132,20 +140,22 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
             return 0;
         CompoundTag tankCompound = stack.getTag().getCompound("Fluid");
 
+        var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+
         return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(tankCompound).getAmount()/(
-                (float)ConfigRegistry.TOOL_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get())*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()
+                (float)ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()
         ), 0, 1));
     }
 
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
-        if(!ModList.get().isLoaded("dungeons_libraries"))
-            return new FluidHandlerItemStack(stack, ConfigRegistry.TOOL_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get()) * ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get());
-        return new FluidHandlerItemStack(stack, ConfigRegistry.TOOL_CAPACITY.get());
-    }
+
     @Override
     @OnlyIn(Dist.CLIENT)
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(SimpleCustomRenderer.create(this, new ChemicalSprayerItemRenderer()));
+    }
+
+    @Override
+    public Storage<FluidVariant> getFluidStorage(ItemStack stack, ContainerItemContext context) {
+        return new FluidHandlerItemStack(context, ConfigRegistry.TOOL_CAPACITY.get());
     }
 }

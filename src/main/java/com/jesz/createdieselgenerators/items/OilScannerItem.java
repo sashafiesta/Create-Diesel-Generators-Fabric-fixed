@@ -26,9 +26,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class OilScannerItem extends Item {
     public OilScannerItem(Properties properties) {
@@ -64,7 +61,7 @@ public class OilScannerItem extends Item {
                         stack.getTag().putInt("Time", 20);
                         ChunkPos chunkPos = new ChunkPos(new BlockPos(entity.getBlockX(), 0, entity.getBlockZ()));
 
-                        int amount = CreateDieselGenerators.getOilAmount(
+                        int amount = CreateDieselGenerators.getOilAmount((ServerLevel) level,
                                 level.getBiome(new BlockPos(chunkPos.x*16, 64, chunkPos.z*16)),
                                 chunkPos.x, chunkPos.z, ((ServerLevel) level).getSeed());
                         OilChunksSavedData sd = OilChunksSavedData.load((ServerLevel) level);
