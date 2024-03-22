@@ -9,9 +9,9 @@ import com.simibubi.create.compat.jei.EmptyBackground;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.fabric.constants.FabricTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -64,7 +64,8 @@ public class DieselEngineCategory implements IRecipeCategory<DieselEngineJeiReci
         builder
                 .addSlot(RecipeIngredientRole.INPUT, 10, 10)
                 .setBackground(getRenderedSlot(), -1, -1)
-                .addIngredient(ForgeTypes.FLUID_STACK, withImprovedVisibility(new FluidStack(recipe.fluid, 1000)))
+                .addIngredient(FabricTypes.FLUID_STACK, toJei(withImprovedVisibility(new FluidStack(recipe.fluid, 1000))))
+                //.addIngredient(FabricTypes.FLUID_STACK, withImprovedVisibility(new FluidStack(recipe.fluid, 1000)))
                 .addTooltipCallback(addFluidTooltip(recipe.burnRate));
     }
 

@@ -11,8 +11,9 @@ import com.simibubi.create.content.processing.recipe.HeatCondition;
 import com.simibubi.create.foundation.fluid.FluidIngredient;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.utility.Lang;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
-import mezz.jei.api.forge.ForgeTypes;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import mezz.jei.api.fabric.constants.FabricTypes;
+import mezz.jei.api.fabric.ingredients.fluids.IJeiFluidIngredient;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -21,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 public class DistillationCategory extends CreateRecipeCategory<DistillationRecipe> {
@@ -38,10 +40,16 @@ public class DistillationCategory extends CreateRecipeCategory<DistillationRecip
         if(recipe.getFluidIngredients().isEmpty())
             return;
         FluidIngredient fluidIngredient = recipe.getFluidIngredients().get(0);
+
+        List<FluidStack> v = fluidIngredient.getMatchingFluidStacks();
+        List<FluidStack> r = withImprovedVisibility(v);
+        List<IJeiFluidIngredient> j = toJei(r);
+
         builder
                 .addSlot(RecipeIngredientRole.INPUT, 17, 145)
                 .setBackground(getRenderedSlot(), -1, -1)
-                .addIngredients(ForgeTypes.FLUID_STACK, withImprovedVisibility(fluidIngredient.getMatchingFluidStacks()))
+                //.addIngredient(FabricTypes.FLUID_STACK, toJei(withImprovedVisibility(new FluidStack(recipe.getFluidResults().get(0), 1000))))
+                .addIngredients(FabricTypes.FLUID_STACK, j)
                 .addTooltipCallback(addFluidTooltip(fluidIngredient.getRequiredAmount()));
 
 
@@ -53,7 +61,7 @@ public class DistillationCategory extends CreateRecipeCategory<DistillationRecip
             builder
                     .addSlot(RecipeIngredientRole.OUTPUT, 130, yPosition)
                     .setBackground(getRenderedSlot(), -1, -1)
-                    .addIngredient(ForgeTypes.FLUID_STACK, withImprovedVisibility(fluidResult))
+                    .addIngredient(FabricTypes.FLUID_STACK, toJei(withImprovedVisibility(fluidResult)))
                     .addTooltipCallback(addFluidTooltip(fluidResult.getAmount()));
             i++;
         }

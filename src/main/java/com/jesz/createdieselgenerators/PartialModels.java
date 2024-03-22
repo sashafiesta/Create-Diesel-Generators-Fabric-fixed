@@ -48,7 +48,7 @@ public class PartialModels {
         lighterSkinModels.put("standard", Pair.of(new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter"))
                 , Pair.of(new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter_open"))
                         , new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter_ignited")))));
-        CreateDieselGenerators.lighterSkins.forEach((name, skinId) -> {
+        CreateDieselGeneratorsClient.lighterSkins.forEach((name, skinId) -> {
             lighterSkinModels.put(skinId, Pair.of(new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter/"+skinId))
                     , Pair.of(new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter/"+skinId+"_open"))
                     , new CDGPartialModel(new ResourceLocation("createdieselgenerators:item/lighter/"+skinId+"_ignited")))));

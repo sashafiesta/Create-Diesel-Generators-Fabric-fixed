@@ -34,7 +34,7 @@ public class CDGCommands {
         if(!source.hasPermission(2))
             return 0;
         ChunkPos chunkPos = new ChunkPos(new BlockPos((int) source.getPosition().x, (int) source.getPosition().y, (int) source.getPosition().z));
-        int amount = CreateDieselGenerators.getOilAmount(source.getLevel().getBiome(new BlockPos(chunkPos.x*16, 64,  chunkPos.z*16)), chunkPos.x, chunkPos.z, source.getLevel().getSeed());
+        int amount = CreateDieselGenerators.getOilAmount(source.getLevel(), source.getLevel().getBiome(new BlockPos(chunkPos.x*16, 64,  chunkPos.z*16)), chunkPos.x, chunkPos.z, source.getLevel().getSeed());
 
         OilChunksSavedData sd = OilChunksSavedData.load(source.getLevel());
         if(sd.getChunkOilAmount(chunkPos) != -1)
@@ -84,7 +84,7 @@ public class CDGCommands {
                 OilChunksSavedData sd = OilChunksSavedData.load(source.getLevel());
                 int amount = sd.getChunkOilAmount(chunkPos);
                 if(amount == -1)
-                    amount = CreateDieselGenerators.getOilAmount(source.getLevel().getBiome(new BlockPos(chunkPos.x*16, 64,  chunkPos.z*16)), chunkPos.x, chunkPos.z, source.getLevel().getSeed());
+                    amount = CreateDieselGenerators.getOilAmount(source.getLevel(), source.getLevel().getBiome(new BlockPos(chunkPos.x*16, 64,  chunkPos.z*16)), chunkPos.x, chunkPos.z, source.getLevel().getSeed());
 
                 if(amount != 0){
                     oilChunks.put(chunkPos, amount);

@@ -4,21 +4,34 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.jesz.createdieselgenerators.blocks.ct.SpriteShifts;
 import com.jesz.createdieselgenerators.config.ConfigRegistry;
+import com.jesz.createdieselgenerators.entity.EntityRegistry;
 import com.jesz.createdieselgenerators.fluids.FluidRegistry;
+import com.jesz.createdieselgenerators.items.ChemicalSprayerItemRenderer;
+import com.jesz.createdieselgenerators.items.ItemRegistry;
+import com.jesz.createdieselgenerators.items.LighterItemRenderer;
 import com.jesz.createdieselgenerators.other.CDGPartialModel;
 import com.jesz.createdieselgenerators.ponder.PonderIndex;
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import fuzs.forgeconfigapiport.impl.ForgeConfigAPIPort;
+import io.github.fabricators_of_create.porting_lib.util.ItemRendererHelper;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.fml.config.ModConfig;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class CreateDieselGeneratorsClient implements ClientModInitializer {
 
@@ -30,13 +43,23 @@ public class CreateDieselGeneratorsClient implements ClientModInitializer {
     public void onInitializeClient() {
         PartialModels.init();
         SpriteShifts.init();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigRegistry.CLIENT_SPEC, "createdieselgenerators-client.toml");
-        clientInit();
-        onModelRegistry();
-        CDGPartialModel::onModelBake
+        //ModLoadingContext.registerConfig(CreateDieselGenerators.ID,  ModConfig.Type.CLIENT, ConfigRegistry.CLIENT_SPEC);
+        ForgeConfigRegistry.INSTANCE.register(CreateDieselGenerators.ID, ModConfig.Type.CLIENT, ConfigRegistry.CLIENT_SPEC);
+        PonderIndex.register();
+        ModelLoadingRegistry.INSTANCE.registerModelProvider(CreateDieselGeneratorsClient::onModelRegistry);
+        //TODO??? CDGPartialModel::onModelBake;
+
+
+        //BuiltinItemRendererRegistry.INSTANCE.register(ItemRegistry.CHEMICAL_SPRAYER, new ChemicalSprayerItemRenderer());
+        //BuiltinItemRendererRegistry.INSTANCE.register(ItemRegistry.LIGHTER, new LighterItemRenderer());
+
+        PonderIndex.register();
+
+        BlockRenderLayerMap.INSTANCE.putFluids(RenderType.translucent(), FluidRegistry.ETHANOL.get(), FluidRegistry.ETHANOL.get());
+        //consumer.accept(SimpleCustomRenderer.create(this, new ChemicalSprayerItemRenderer()));
     }
 
-    public static void onModelRegistry(){
+    private static void onModelRegistry(ResourceManager resourceManager, Consumer<ResourceLocation> resourceLocationConsumer) {
         lighterSkins.clear();
         Minecraft.getInstance().getResourceManager().getNamespaces().stream().toList().forEach(n -> {
             Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation(n, "lighter_skins.json"));
@@ -51,13 +74,10 @@ public class CreateDieselGeneratorsClient implements ClientModInitializer {
             }catch (IOException ignored) {}
         });
         PartialModels.initSkins();
-        CDGPartialModel.onModelRegistry(event);
     }
 
-    public static void clientInit() {
-        ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.get(), RenderType.translucent());
-        ItemBlockRenderTypes.setRenderLayer(FluidRegistry.ETHANOL.getSource(), RenderType.translucent());
-        PonderIndex.register();
-    }
+    public static void onModelRegistry(){
 
+        //CDGPartialModel.onModelRegistry(event);
+    }
 }

@@ -13,10 +13,14 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -31,12 +35,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
+import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.FACING;
 import static com.simibubi.create.AllTags.optionalTag;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.*;
 
-public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveHoveringInformation {
+public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, IHaveHoveringInformation, SidedStorageBlockEntity {
     BlockState state;
 
     SmartFluidTankBehaviour tank;
@@ -157,7 +163,7 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
             OilChunksSavedData sd = OilChunksSavedData.load((ServerLevel)level);
             int amount = sd.getChunkOilAmount(chunkPos);
             if(amount == -1)
-                amount = CreateDieselGenerators.getOilAmount(level.getBiome(new BlockPos(chunkPos.x * 16, 64,  chunkPos.z * 16)), chunkPos.x, chunkPos.z, ((ServerLevel)level).getSeed());
+                amount = CreateDieselGenerators.getOilAmount((ServerLevel)level, level.getBiome(new BlockPos(chunkPos.x * 16, 64,  chunkPos.z * 16)), chunkPos.x, chunkPos.z, ((ServerLevel)level).getSeed());
             oilAmount = amount;
             started = true;
             if(amount == 0)
@@ -170,9 +176,11 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
             }
             int subtractedAmount = Mth.clamp((int) (100 * Math.abs((float) headPos / (float) bearingPos)) * (isCrankLarge ? 2 : 1), 0, 1000);
             storedOilAmount = storedOilAmount < subtractedAmount ? 0 : (int) (storedOilAmount - (100 / Math.abs((float) headPos / (float) bearingPos)));
-            List<Fluid> stackList = ForgeRegistries.FLUIDS.tags()
-                            .getTag(optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation("createdieselgenerators:pumpjack_output")))
-                            .stream()
+
+
+            List<Fluid> stackList = BuiltInRegistries.FLUID
+                            .getTag(optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:pumpjack_output")))
+                            .stream().map(holders -> holders.get(0).value())
                             .distinct()
                             .toList();
             if(stackList.isEmpty())
@@ -183,19 +191,19 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
             //tank.getPrimaryHandler().fill(oilStack, IFluidHandler.FluidAction.EXECUTE);
         }
     }
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (!(cap == ForgeCapabilities.FLUID_HANDLER))
-            return super.getCapability(cap, side);
-        if(side == Direction.NORTH && getBlockState().getValue(NORTH))
-            return tank.getCapability().cast();
-        if(side == Direction.EAST && getBlockState().getValue(EAST))
-            return tank.getCapability().cast();
-        if(side == Direction.SOUTH && getBlockState().getValue(SOUTH))
-            return tank.getCapability().cast();
-        if(side == Direction.WEST && getBlockState().getValue(WEST))
-            return tank.getCapability().cast();
 
-        return super.getCapability(cap, side);
+    @Nullable
+    @Override
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction side) {
+        if(side == Direction.NORTH && getBlockState().getValue(NORTH))
+            return tank.getCapability();
+        if(side == Direction.EAST && getBlockState().getValue(EAST))
+            return tank.getCapability();
+        if(side == Direction.SOUTH && getBlockState().getValue(SOUTH))
+            return tank.getCapability();
+        if(side == Direction.WEST && getBlockState().getValue(WEST))
+            return tank.getCapability();
+        return null;
     }
+
 }

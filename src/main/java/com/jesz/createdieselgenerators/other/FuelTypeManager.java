@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -56,10 +57,10 @@ public class FuelTypeManager {
                             ));
                     tryPopulateTags();
                 }else{
-                    Optional<Holder.Reference<Fluid>> fluid = ForgeRegistries.FLUIDS.getDelegate(new ResourceLocation(fluidId));
+                    var fluid = BuiltInRegistries.FLUID.getOptional(new ResourceLocation(fluidId));//.getDelegate(new ResourceLocation(fluidId));
                     if(fluid.isEmpty())
                         return;
-                    fuelTypes.put(fluid.get().get(), new CDGFuelType(
+                    fuelTypes.put(fluid.get(), new CDGFuelType(
                             normalEngineObject.get("speed").getAsFloat(),
                             normalEngineObject.get("strength").getAsFloat(),
                             normalEngineObject.get("burn_rate").getAsInt(),
@@ -78,16 +79,16 @@ public class FuelTypeManager {
     public static void tryPopulateTags(){
         if(fuelTags.isEmpty())
             return;
-        if(ForgeRegistries.FLUIDS.tags().stream().toList().isEmpty())
+        if(BuiltInRegistries.FLUID.getTags().toList().isEmpty())
             return;
         for (Map.Entry<String, CDGFuelType> entry : Map.copyOf(fuelTags).entrySet()) {
-            ForgeRegistries.FLUIDS.tags()
-                    .getTag(optionalTag(ForgeRegistries.FLUIDS, new ResourceLocation(entry.getKey())))
+            BuiltInRegistries.FLUID
+                    .getTag(optionalTag(BuiltInRegistries.FLUID, new ResourceLocation(entry.getKey())))
                     .stream()
                     .distinct()
                     .toList().forEach(fluid ->
                         {
-                            fuelTypes.put(fluid, entry.getValue());
+                            fuelTypes.put(fluid.get(0).value(), entry.getValue());
                             fuelTags.remove(entry.getKey(), entry.getValue());
                         }
                     );

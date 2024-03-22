@@ -1,6 +1,7 @@
 package com.jesz.createdieselgenerators.blocks.entity;
 
 import com.jesz.createdieselgenerators.blocks.BlockRegistry;
+import com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock;
 import com.jesz.createdieselgenerators.blocks.PoweredEngineShaftBlock;
 import com.jesz.createdieselgenerators.compat.computercraft.CCProxy;
 import com.jesz.createdieselgenerators.other.FuelTypeManager;
@@ -17,7 +18,12 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -38,7 +45,7 @@ import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.POWERE
 import static com.jesz.createdieselgenerators.blocks.HugeDieselEngineBlock.FACING;
 import static com.simibubi.create.content.kinetics.base.RotatedPillarKineticBlock.AXIS;
 
-public class HugeDieselEngineBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
+public class HugeDieselEngineBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, SidedStorageBlockEntity {
     public WeakReference<PoweredEngineShaftBlockEntity> target = new WeakReference<>(null);
     public SmartFluidTankBehaviour tank;
 
@@ -109,7 +116,7 @@ public class HugeDieselEngineBlockEntity extends SmartBlockEntity implements IHa
             float shaftR = facing == Direction.NORTH ? 180 : facing == Direction.SOUTH ? 0 : facing == Direction.EAST ? 0 : facing == Direction.WEST ? 180 : facing == Direction.DOWN ? 90 : -90;
 
             if((oldAngle+shaftR) % 360 > (angle+shaftR) % 360) {
-                level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.get(), SoundSource.BLOCKS, 1f,1f, false);
+                level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.getMainEvent(), SoundSource.BLOCKS, 1f,1f, false);
             }
             oldAngle = angle;
 
@@ -160,15 +167,13 @@ public class HugeDieselEngineBlockEntity extends SmartBlockEntity implements IHa
         });
     }
 
+    @Nullable
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if(cap == ForgeCapabilities.FLUID_HANDLER && side == null)
-            return tank.getCapability().cast();
-        else if (cap == ForgeCapabilities.FLUID_HANDLER && getBlockState().getValue(BooleanProperty.create(side.toString())))
-            if(side.getAxis() != getBlockState().getValue(FACING).getAxis())
-                return tank.getCapability().cast();
-
-        return super.getCapability(cap, side);
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction face) {
+        if (getBlockState().getValue(BooleanProperty.create(face.toString())))
+            if(face.getAxis() != getBlockState().getValue(FACING).getAxis())
+                return tank.getCapability();
+        return null;
     }
 
     @Override
@@ -196,11 +201,11 @@ public class HugeDieselEngineBlockEntity extends SmartBlockEntity implements IHa
                 .add(Lang.translate("gui.goggles.at_current_speed")
                         .style(ChatFormatting.DARK_GRAY))
                 .forGoggles(tooltip, 1);
-        return containedFluidTooltip(tooltip, isPlayerSneaking, tank.getCapability().cast());
+        return containedFluidTooltip(tooltip, isPlayerSneaking, tank.getCapability());
     }
 
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public Float getTargetAngle() {
         float angle;
         BlockState state = getBlockState();

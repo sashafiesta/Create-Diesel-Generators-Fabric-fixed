@@ -5,6 +5,7 @@ import com.jesz.createdieselgenerators.blocks.entity.OilBarrelBlockEntity;
 import com.simibubi.create.api.connectivity.ConnectivityHandler;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
+import io.github.fabricators_of_create.porting_lib.block.CustomSoundTypeBlock;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,7 +32,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Locale;
 
-public class OilBarrelBlock extends Block implements IBE<OilBarrelBlockEntity>, IWrenchable {
+public class OilBarrelBlock extends Block implements IBE<OilBarrelBlockEntity>, IWrenchable, CustomSoundTypeBlock {
 
     public static final EnumProperty<OilBarrelColor> OIL_BARREL_COLOR = EnumProperty.create("color", OilBarrelColor.class);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
@@ -211,9 +212,8 @@ public class OilBarrelBlock extends Block implements IBE<OilBarrelBlockEntity>, 
 
     @Override
     public SoundType getSoundType(BlockState state, LevelReader world, BlockPos pos, Entity entity) {
-        SoundType soundType = super.getSoundType(state, world, pos, entity);
-        if (entity != null && entity.getPersistentData()
-                .contains("SilenceTankSound"))
+        SoundType soundType = super.getSoundType(state);
+        if (entity != null && entity.getCustomData().contains("SilenceTankSound"))
             return SILENCED_METAL;
         return soundType;
     }

@@ -2,7 +2,6 @@ package com.jesz.createdieselgenerators.other;
 
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +19,7 @@ public class CDGPartialModel {
         ALL.add(this);
     }
 
+    /*
     public static void onModelRegistry(ModelEvent.RegisterAdditional event) {
         for (CDGPartialModel partial : ALL)
             event.register(partial.getLocation());
@@ -30,6 +30,8 @@ public class CDGPartialModel {
         for (CDGPartialModel partial : ALL)
             partial.set(models.get(partial.getLocation()));
     }
+
+     */
 
     protected void set(BakedModel bakedModel) {
         this.bakedModel = bakedModel;

@@ -3,15 +3,14 @@ package com.jesz.createdieselgenerators.compat.computercraft.peripherals;
 import com.jesz.createdieselgenerators.blocks.entity.HugeDieselEngineBlockEntity;
 import com.jesz.createdieselgenerators.other.FuelTypeManager;
 import com.simibubi.create.compat.computercraft.implementation.peripherals.SyncedPeripheral;
-import dan200.computercraft.api.lua.LuaFunction;
 
 
-public class HugeDieselEnginePeripheral extends SyncedPeripheral<HugeDieselEngineBlockEntity> {
+//public class HugeDieselEnginePeripheral extends SyncedPeripheral<HugeDieselEngineBlockEntity> {
 
-    public HugeDieselEnginePeripheral(HugeDieselEngineBlockEntity blockEntity) {
-        super(blockEntity);
-    }
-
+//    public HugeDieselEnginePeripheral(HugeDieselEngineBlockEntity blockEntity) {
+//        super(blockEntity);
+//    }
+/*
     @Override
     public String getType() {
         return "CDG_DieselEngine";
@@ -45,4 +44,6 @@ public class HugeDieselEnginePeripheral extends SyncedPeripheral<HugeDieselEngin
     public final float getFuelBurnRate(){
         return FuelTypeManager.getBurnRate(blockEntity, blockEntity.tank.getPrimaryHandler().getFluid().getFluid());
     }
-}
+
+ */
+//}

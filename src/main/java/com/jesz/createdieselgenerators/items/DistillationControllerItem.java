@@ -4,8 +4,9 @@ import com.jesz.createdieselgenerators.blocks.BlockRegistry;
 import com.jesz.createdieselgenerators.blocks.entity.DistillationTankBlockEntity;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -25,7 +26,9 @@ public class DistillationControllerItem extends Item {
             BlockPos cPos = ftbe.getController();
             int width = ftbe.getControllerBE().getWidth();
             int height = ftbe.getControllerBE().getHeight();
-            FluidStack fluidInTank = ftbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(new FluidTank(0)).getFluidInTank(0).copy();
+            FluidStack fluidInTank = ftbe.getFluid(0);
+
+            //FluidStack fluidInTank = ftbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(new FluidTank(0)).getFluidInTank(0).copy();
             for (int x = 0; x < width; x++) {
                 for (int z = 0; z < width; z++) {
                     for (int y = 0; y < height; y++) {
@@ -46,9 +49,13 @@ public class DistillationControllerItem extends Item {
                             dtbe.updateVerticalMulti();
                             dtbe.updateConnectivity();
                             if(x == 0 && y == 0 && z == 0){
-                                IFluidHandler tank = dtbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
-                                if(tank != null)
-                                    tank.fill(fluidInTank, IFluidHandler.FluidAction.EXECUTE);
+                                //IFluidHandler tank = dtbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+                                var tank = TransferUtil.getFluidStorage(dtbe);
+                                if(tank != null) {
+                                    //tank.fill(fluidInTank, IFluidHandler.FluidAction.EXECUTE);
+                                    TransferUtil.insertFluid(tank, fluidInTank);
+                                }
+
                                 dtbe.updateTemperature();
                             }
                         }

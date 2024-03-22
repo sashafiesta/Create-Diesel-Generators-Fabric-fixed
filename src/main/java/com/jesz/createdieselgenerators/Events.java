@@ -5,27 +5,44 @@ import com.jesz.createdieselgenerators.blocks.ICDGKinetics;
 import com.jesz.createdieselgenerators.commands.CDGCommands;
 import com.jesz.createdieselgenerators.config.ConfigRegistry;
 import com.jesz.createdieselgenerators.items.ItemRegistry;
-import com.jesz.createdieselgenerators.other.EntityTickEvent;
 import com.jesz.createdieselgenerators.other.FuelTypeManager;
 import com.jozufozu.flywheel.util.AnimationTickHolder;
+import com.mojang.brigadier.CommandDispatcher;
 import com.simibubi.create.content.equipment.goggles.GogglesItem;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.item.TooltipHelper;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
+import com.simibubi.create.infrastructure.command.ConfigCommand;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.config.CKinetics;
+import io.github.fabricators_of_create.porting_lib.event.common.ExplosionEvents;
+import io.github.fabricators_of_create.porting_lib.mixin.accessors.common.accessor.BucketItemAccessor;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.tropheusj.milk.Milk;
+import io.github.tropheusj.milk.MilkFluid;
+import io.github.tropheusj.milk.MilkFluidBlock;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Explosion;
@@ -35,60 +52,30 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.command.ConfigCommand;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = "createdieselgenerators")
 public class Events {
-    @SubscribeEvent
-    public static void onCommandRegister(RegisterCommandsEvent event){
-        new CDGCommands(event.getDispatcher());
 
-        ConfigCommand.register(event.getDispatcher());
+    public static void onCommandRegister(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext ctx, Commands.CommandSelection commandSelection) {
+        new CDGCommands(dispatcher);
     }
+
+    /* TODO
     @SubscribeEvent
     public static void addReloadListeners(AddReloadListenerEvent event){
         event.addListener(FuelTypeManager.ReloadListener.INSTANCE);
     }
-    @SubscribeEvent
-    public static void onEntityTick(EntityTickEvent event){
-        if(event.entity instanceof ItemEntity itemEntity)
-            if(itemEntity.getItem().is(ItemRegistry.LIGHTER.get()) && ConfigRegistry.COMBUSTIBLES_BLOW_UP.get() && itemEntity.getItem().getTag() != null)
-                if(itemEntity.getItem().getTag().getInt("Type") == 2) {
-                    FluidState fState = itemEntity.level().getFluidState(new BlockPos(itemEntity.getBlockX(), itemEntity.getBlockY(), itemEntity.getBlockZ()));
-                    if(fState.is(Fluids.WATER) || fState.is(Fluids.FLOWING_WATER)) {
-                        itemEntity.getItem().getTag().putInt("Type", 1);
-                        itemEntity.level().playLocalSound(itemEntity.getPosition(1).x, itemEntity.getPosition(1).y, itemEntity.getPosition(1).z, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f, false);
-                        return;
-                    }
-                    if(FuelTypeManager.getGeneratedSpeed(fState.getType()) != 0)
-                        itemEntity.level().explode(null, null, null, itemEntity.getPosition(1).x, itemEntity.getPosition(1).y, itemEntity.getPosition(1).z, 3, true, Level.ExplosionInteraction.BLOCK);
-                }
-    }
-    @SubscribeEvent
-    public static void onExplosion(ExplosionEvent event){
-        Level level = event.getLevel();
+     */
+
+    public static void onExplosion(Level level, Explosion explosion, List<Entity> entities, double v) {
         if(ConfigRegistry.COMBUSTIBLES_BLOW_UP.get() && !level.isClientSide)
             for (int x = -2; x < 2; x++) {
                 for (int y = -2; y < 2; y++) {
                     for (int z = -2; z < 2; z++) {
-                        BlockPos pos = new BlockPos((int) (x+event.getExplosion().getPosition().x), (int) (y+event.getExplosion().getPosition().y), (int) (z+event.getExplosion().getPosition().z));
+                        BlockPos pos = new BlockPos((int) (x + explosion.x), (int) (y + explosion.y), (int) (z + explosion.z));
 
                         if (!level.isInWorldBounds(pos)) continue;
                         if(Math.abs(Math.sqrt(x*x+y*y+z*z)) < 2) {
@@ -103,21 +90,25 @@ public class Events {
                             BlockEntity be = level.getBlockEntity(pos);
                             if(be == null)
                                 continue;
-                            IFluidHandler tank = be.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+                            var tank = TransferUtil.getFluidStorage(be);
                             if(tank == null)
                                 continue;
-                            if(FuelTypeManager.getGeneratedSpeed(tank.getFluidInTank(0).getFluid()) == 0)
+
+                            FluidStack fluid = TransferUtil.getFirstFluid(tank);
+
+                            if(FuelTypeManager.getGeneratedSpeed(fluid.getFluid()) == 0)
                                 continue;
                             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                             try {
-                                level.explode(null, null, null, pos.getX(), pos.getY(), pos.getZ(), 3 + ((float) tank.getFluidInTank(0).getAmount() / 500), true, Level.ExplosionInteraction.BLOCK);
+                                level.explode(null, null, null, pos.getX(), pos.getY(), pos.getZ(), 3 + ((float) fluid.getAmount() / 500), true, Level.ExplosionInteraction.BLOCK);
                             }catch (StackOverflowError ignored){}
                         }
                     }
                 }
             }
     }
-    @SubscribeEvent
+
+    /*TODO
     public static void addTrade(VillagerTradesEvent event) {
         Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
         if(!(event.getType() == VillagerProfession.TOOLSMITH))
@@ -128,19 +119,20 @@ public class Events {
                 10,8,0.02f));
     }
 
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public static void addToItemTooltip(ItemTooltipEvent event) {
+     */
+
+    public static void addToItemTooltip(List<Component> tooltip, Item item, Player player) {
         if (!AllConfigs.client().tooltips.get())
             return;
-        if (event.getEntity() == null)
+        if (player == null)
             return;
-        List<Component> tooltip = event.getToolTip();
-        Item item = event.getItemStack().getItem();
         if((item instanceof BucketItem || item instanceof MilkBucketItem) && ConfigRegistry.FUEL_TOOLTIPS.get()){
-            Fluid fluid = ForgeMod.MILK.get();
+
+            Fluid fluid = Milk.STILL_MILK.getSource();
             if(item instanceof BucketItem bi)
-                fluid = bi.getFluid();
+                fluid = fluid = ((BucketItemAccessor) item).port_lib$getContent();
+
+
 
             if(FuelTypeManager.getGeneratedSpeed(fluid) != 0){
                 if(Screen.hasAltDown()) {
@@ -165,9 +157,9 @@ public class Events {
                 }
             }
         }
-        if(ForgeRegistries.ITEMS.getKey(item).getNamespace() != "createdieselgenerators")
+        if(!BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("createdieselgenerators"))
             return;
-        String path = "createdieselgenerators." + ForgeRegistries.ITEMS.getKey(item).getPath();
+        String path = "createdieselgenerators." + BuiltInRegistries.ITEM.getKey(item).getPath();
         List<Component> tooltipList = new ArrayList<>();
         if(!Component.translatable(path + ".tooltip.summary").getString().equals(path + ".tooltip.summary")) {
             if (Screen.hasShiftDown()) {
@@ -193,7 +185,7 @@ public class Events {
 
         if(item instanceof BlockItem bi)
             if(bi.getBlock() instanceof ICDGKinetics k){
-                boolean hasGoggles = GogglesItem.isWearingGoggles(event.getEntity());
+                boolean hasGoggles = GogglesItem.isWearingGoggles(player);
 
 
 
@@ -238,4 +230,7 @@ public class Events {
             }
 
     }
+
+
+
 }

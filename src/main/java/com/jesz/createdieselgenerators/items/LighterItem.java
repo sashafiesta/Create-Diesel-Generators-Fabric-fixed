@@ -6,8 +6,10 @@ import com.simibubi.create.AllEnchantments;
 import com.simibubi.create.content.equipment.armor.CapacityEnchantment;
 import com.simibubi.create.foundation.utility.Lang;
 import io.github.fabricators_of_create.porting_lib.enchant.CustomEnchantingBehaviorItem;
+import io.github.fabricators_of_create.porting_lib.item.EntityTickListenerItem;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.transfer.fluid.item.FluidHandlerItemStack;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -25,6 +27,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,11 +42,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public class LighterItem extends Item implements CapacityEnchantment.ICapacityEnchantable, CustomEnchantingBehaviorItem, FluidStorageItem {
+public class LighterItem extends Item implements CapacityEnchantment.ICapacityEnchantable, CustomEnchantingBehaviorItem, FluidStorageItem, EntityTickListenerItem {
     public LighterItem(Properties properties) {
         super(properties.stacksTo(1));
     }
@@ -136,13 +141,15 @@ public class LighterItem extends Item implements CapacityEnchantment.ICapacityEn
             if(ConfigRegistry.COMBUSTIBLES_BLOW_UP.get()){
                 BlockEntity cb = level.getBlockEntity(blockpos);
                 if(cb != null) {
-                    IFluidHandler tank = cb.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+                    var tank = TransferUtil.getFluidStorage(cb);
+                    var fluid = TransferUtil.getFirstFluid(tank);
+                    //IFluidHandler tank = cb.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
 
                     if (tank == null)
                         return use(context.getLevel(), context.getPlayer(), context.getHand()).getResult();
-                    if (FuelTypeManager.getGeneratedSpeed(tank.getFluidInTank(0).getFluid()) != 0) {
+                    if (FuelTypeManager.getGeneratedSpeed(fluid.getFluid()) != 0) {
                         level.setBlock(blockpos, Blocks.AIR.defaultBlockState(), 3);
-                        level.explode(null, null, null, blockpos.getX(), blockpos.getY(), blockpos.getZ(), 3 + ((float) tank.getFluidInTank(0).getAmount() / 500), true, Level.ExplosionInteraction.BLOCK);
+                        level.explode(null, null, null, blockpos.getX(), blockpos.getY(), blockpos.getZ(), 3 + ((float) fluid.getAmount() / 500), true, Level.ExplosionInteraction.BLOCK);
 
                         CompoundTag tankCompound = itemstack.getTag().getCompound("Fluid");
                         FluidStack fStack = FluidStack.loadFluidStackFromNBT(tankCompound);
@@ -206,18 +213,30 @@ public class LighterItem extends Item implements CapacityEnchantment.ICapacityEn
         if(stack.getTag() == null)
             return 0;
         CompoundTag tankCompound = stack.getTag().getCompound("Fluid");
-
-        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(tankCompound).getAmount()/((float)ConfigRegistry.TOOL_CAPACITY.get() + stack.getEnchantmentLevel(AllEnchantments.CAPACITY.get())*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()), 0, 1));
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(SimpleCustomRenderer.create(this, new LighterItemRenderer()));
+        var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
+        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(tankCompound).getAmount()/((float)ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()), 0, 1));
     }
 
     @Override
     public Storage<FluidVariant> getFluidStorage(ItemStack stack, ContainerItemContext context) {
         return new FluidHandlerItemStack(context, ConfigRegistry.TOOL_CAPACITY.get());
+    }
+
+    @Override
+    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity itemEntity) {
+        if(itemEntity.getItem().is(ItemRegistry.LIGHTER.get()) && ConfigRegistry.COMBUSTIBLES_BLOW_UP.get() && itemEntity.getItem().getTag() != null) {
+            if(itemEntity.getItem().getTag().getInt("Type") == 2) {
+                FluidState fState = itemEntity.level().getFluidState(new BlockPos(itemEntity.getBlockX(), itemEntity.getBlockY(), itemEntity.getBlockZ()));
+                if(fState.is(Fluids.WATER) || fState.is(Fluids.FLOWING_WATER)) {
+                    itemEntity.getItem().getTag().putInt("Type", 1);
+                    itemEntity.level().playLocalSound(itemEntity.getPosition(1).x, itemEntity.getPosition(1).y, itemEntity.getPosition(1).z, SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f, false);
+                    return false;
+                }
+                if(FuelTypeManager.getGeneratedSpeed(fState.getType()) != 0)
+                    itemEntity.level().explode(null, null, null, itemEntity.getPosition(1).x, itemEntity.getPosition(1).y, itemEntity.getPosition(1).z, 3, true, Level.ExplosionInteraction.BLOCK);
+            }
+        }
+
+        return false;
     }
 }

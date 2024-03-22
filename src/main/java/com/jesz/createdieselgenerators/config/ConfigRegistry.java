@@ -122,6 +122,34 @@ public class ConfigRegistry {
         SERVER_BUILDER.pop();
         SERVER_SPEC = SERVER_BUILDER.build();
     }
+/*
+
+    public static void register() {
+        client = register(CClient::new, ModConfig.Type.CLIENT);
+        common = register(CCommon::new, ModConfig.Type.COMMON);
+        server = register(CServer::new, ModConfig.Type.SERVER);
+
+        for (Entry<ModConfig.Type, ConfigBase> pair : CONFIGS.entrySet())
+            ModLoadingContext.registerConfig(CreateDieselGenerators.ID, pair.getKey(), pair.getValue().specification);
 
 
+        ModConfigEvents.loading(CreateDieselGenerators.ID).register(ConfigRegistry::onLoad);
+        ModConfigEvents.reloading(CreateDieselGenerators.ID).register(ConfigRegistry::onReload);
+    }
+
+    public static void onLoad(ModConfig modConfig) {
+        for (ConfigBase config : CONFIGS.values())
+            if (config.specification == modConfig
+                    .getSpec())
+                config.onLoad();
+    }
+
+    public static void onReload(ModConfig modConfig) {
+        for (ConfigBase config : CONFIGS.values())
+            if (config.specification == modConfig
+                    .getSpec())
+                config.onReload();
+    }
+
+ */
 }

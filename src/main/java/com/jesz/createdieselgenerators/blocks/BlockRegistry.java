@@ -1,5 +1,6 @@
 package com.jesz.createdieselgenerators.blocks;
 
+import com.jesz.createdieselgenerators.CreativeTab;
 import com.jesz.createdieselgenerators.blocks.ct.DistillationTankModel;
 import com.jesz.createdieselgenerators.blocks.ct.ModularDieselEngineCTBehavior;
 import com.jesz.createdieselgenerators.blocks.ct.OilBarrelCTBehavior;
@@ -25,7 +26,8 @@ import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 
 public class BlockRegistry {
-public static final BlockEntry<DieselGeneratorBlock> DIESEL_ENGINE = REGISTRATE.block("diesel_engine", DieselGeneratorBlock::new)
+
+    public static final BlockEntry<DieselGeneratorBlock> DIESEL_ENGINE = REGISTRATE.block("diesel_engine", DieselGeneratorBlock::new)
             .properties(p -> p.mapColor(MapColor.COLOR_YELLOW))
             .properties(p -> p.sound(SoundType.NETHERITE_BLOCK))
             .onRegister(assignDataBehaviour(new EngineStateDisplaySource()))

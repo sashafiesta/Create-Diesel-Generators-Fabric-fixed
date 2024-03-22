@@ -6,6 +6,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -14,13 +15,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
 
-public class CanisterBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
+public class CanisterBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, SidedStorageBlockEntity {
     CapacityEnchantedFluidTankBehaviour tank;
     BlockState state;
 
@@ -37,28 +35,13 @@ public class CanisterBlockEntity extends SmartBlockEntity implements IHaveGoggle
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        return containedFluidTooltip(tooltip, isPlayerSneaking, getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.DOWN));
+        return containedFluidTooltip(tooltip, isPlayerSneaking, getFluidStorage(null));
     }
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         tank = CapacityEnchantedFluidTankBehaviour.single(this, Math.abs((ConfigRegistry.CANISTER_CAPACITY.get())), ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get());
         behaviours.add(tank);
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap) {
-        if(cap == ForgeCapabilities.FLUID_HANDLER)
-            return tank.getCapability().cast();
-        return super.getCapability(cap);
-    }
-
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-
-        if(cap == ForgeCapabilities.FLUID_HANDLER)
-            return tank.getCapability().cast();
-        return super.getCapability(cap, side);
     }
 
     @Override

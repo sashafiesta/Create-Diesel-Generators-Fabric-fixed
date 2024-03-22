@@ -10,6 +10,9 @@ import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import com.simibubi.create.content.schematics.requirement.ISpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.block.IBE;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.transfer.fluid.FluidTank;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
@@ -27,10 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,8 @@ public class DistillationTankBlock extends Block implements IBE<DistillationTank
         if(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof DistillationTankBlockEntity dtbe){
             int width = dtbe.getControllerBE().getWidth();
             BlockPos pos = dtbe.getController();
-            FluidStack stackInTank = dtbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(new FluidTank(1)).getFluidInTank(0).copy();
+            FluidStack stackInTank = dtbe.getFluid(0).copy();
+
 
             for (int x = 0; x < width; x++) {
                 for (int z = 0; z < width; z++) {
@@ -63,8 +63,9 @@ public class DistillationTankBlock extends Block implements IBE<DistillationTank
                 }
             }
             if(!stackInTank.isEmpty() && context.getLevel().getBlockEntity(pos) instanceof FluidTankBlockEntity be){
-                IFluidHandler tank = be.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(new FluidTank(1));
-                tank.fill(stackInTank, IFluidHandler.FluidAction.EXECUTE);
+                var tank = be.getTank(0);
+                TransferUtil.insertFluid(tank, stackInTank);
+                //tank.fill(stackInTank, IFluidHandler.FluidAction.EXECUTE);
             }
             if(!context.getPlayer().isCreative())
                 context.getPlayer().getInventory().placeItemBackInInventory(DISTILLATION_CONTROLLER.asStack(width*width));

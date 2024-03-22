@@ -10,7 +10,8 @@ import com.simibubi.create.foundation.ponder.element.EntityElement;
 import com.simibubi.create.foundation.ponder.element.InputWindowElement;
 import com.simibubi.create.foundation.ponder.element.WorldSectionElement;
 import com.simibubi.create.foundation.utility.Pointing;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -63,8 +64,7 @@ public class DieselEngineScenes {
             currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 16000);
             return currentFuel;
         };
-        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
+        scene.world.modifyBlockEntity(util.grid.at(4, 0, 1), FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content.get()));
         scene.world.showSection(cogs, Direction.NORTH);
         scene.idle(30);
         scene.overlay.showText(55)
@@ -125,8 +125,7 @@ public class DieselEngineScenes {
             currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 16000);
             return currentFuel;
         };
-        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
+        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content.get()));
         scene.idle(15);
         scene.overlay.showText(40)
                 .attachKeyFrame()
@@ -233,8 +232,7 @@ public class DieselEngineScenes {
             currentFuel = new FluidStack(FuelTypeManager.fuelTypes.isEmpty() ? FluidRegistry.DIESEL.get() : FuelTypeManager.fuelTypes.keySet().stream().toList().get(new Random().nextInt(0, FuelTypeManager.fuelTypes.size() - 1)), 1600);
             return currentFuel;
         };
-        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> be.getTankInventory()
-                .fill(content.get(), IFluidHandler.FluidAction.EXECUTE));
+        scene.world.modifyBlockEntity(util.grid.at(4, 1, 3), FluidTankBlockEntity.class, be -> TransferUtil.insertFluid(be.getTankInventory(), content.get()));
 
         scene.world.modifyKineticSpeed(mainEngine, s -> 96f);
 

@@ -2,6 +2,7 @@ package com.jesz.createdieselgenerators.blocks;
 
 import com.simibubi.create.content.contraptions.bearing.BearingBlock;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +17,9 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.HitResult;
 
-public class PumpjackBearingBBlock extends Block implements IWrenchable {
+import javax.annotation.Nullable;
+
+public class PumpjackBearingBBlock extends Block implements IWrenchable, BlockPickInteractionAware {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public PumpjackBearingBBlock(Properties properties) {
         super(properties);
@@ -30,7 +33,7 @@ public class PumpjackBearingBBlock extends Block implements IWrenchable {
 
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getPickedStack(BlockState state, BlockGetter view, BlockPos pos, @Nullable Player player, @Nullable HitResult result) {
         return BlockRegistry.PUMPJACK_BEARING.asStack();
     }
 

@@ -9,9 +9,11 @@ import com.simibubi.create.content.fluids.potion.PotionFluidHandler;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.BlockHelper;
 import io.github.fabricators_of_create.porting_lib.entity.events.EntityEvents;
+import io.github.fabricators_of_create.porting_lib.entity.events.ProjectileImpactEvent;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import io.github.fabricators_of_create.porting_lib.util.PotionHelper;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +27,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -160,7 +163,9 @@ public class ChemicalSprayerProjectileEntity extends AbstractHurtingProjectile {
             }
 
             HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-            if (hitresult.getType() != HitResult.Type.MISS && !EntityEvents.PROJECTILE_IMPACT.invoker().onImpact(this, hitresult)) {
+            ProjectileImpactEvent event = new ProjectileImpactEvent(this, hitresult);
+            if (hitresult.getType() != HitResult.Type.MISS && !event.isCanceled()) {
+                EntityEvents.PROJECTILE_IMPACT.invoker().onProjectileImpact(event);
                 this.onHit(hitresult);
             }
 
@@ -214,8 +219,8 @@ public class ChemicalSprayerProjectileEntity extends AbstractHurtingProjectile {
         remove(RemovalReason.DISCARDED);
     }
 
-    public static EntityType.Builder<?> build(EntityType.Builder<?> builder) {
-        EntityType.Builder<ChemicalSprayerProjectileEntity> entityBuilder = (EntityType.Builder<ChemicalSprayerProjectileEntity>) builder;
-        return entityBuilder.sized(.25f, .25f);
+    public static FabricEntityTypeBuilder<?> build(FabricEntityTypeBuilder builder) {
+        FabricEntityTypeBuilder<ChemicalSprayerProjectileEntity> entityBuilder = (FabricEntityTypeBuilder<ChemicalSprayerProjectileEntity>) builder;
+        return entityBuilder.dimensions(EntityDimensions.fixed(.25f, .25f));
     }
 }

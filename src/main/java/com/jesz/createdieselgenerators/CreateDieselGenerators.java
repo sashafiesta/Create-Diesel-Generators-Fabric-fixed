@@ -1,9 +1,6 @@
 package com.jesz.createdieselgenerators;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.jesz.createdieselgenerators.blocks.BlockRegistry;
-import com.jesz.createdieselgenerators.blocks.ct.SpriteShifts;
 import com.jesz.createdieselgenerators.blocks.entity.BlockEntityRegistry;
 import com.jesz.createdieselgenerators.compat.EveryCompatCompat;
 import com.jesz.createdieselgenerators.compat.computercraft.CCProxy;
@@ -12,23 +9,20 @@ import com.jesz.createdieselgenerators.entity.EntityRegistry;
 import com.jesz.createdieselgenerators.fluids.FluidRegistry;
 import com.jesz.createdieselgenerators.items.FluidStorageItem;
 import com.jesz.createdieselgenerators.items.ItemRegistry;
-import com.jesz.createdieselgenerators.other.CDGPartialModel;
 import com.jesz.createdieselgenerators.other.SpoutCanisterFilling;
-import com.jesz.createdieselgenerators.ponder.PonderIndex;
 import com.jesz.createdieselgenerators.recipes.RecipeRegistry;
 import com.jesz.createdieselgenerators.sounds.SoundRegistry;
+import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.api.behaviour.BlockSpoutingBehaviour;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import io.github.fabricators_of_create.porting_lib.event.common.ExplosionEvents;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -36,7 +30,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.biome.Biome;
@@ -46,7 +39,6 @@ import java.util.Random;
 public class CreateDieselGenerators implements ModInitializer {
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create("createdieselgenerators");
     public static final String ID = "createdieselgenerators";
-    ResourceKey<CreativeModeTab> C_CREATIVE_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation(ID));
 
 
     public static ResourceLocation asResource(String path) {
@@ -63,14 +55,18 @@ public class CreateDieselGenerators implements ModInitializer {
         EntityRegistry.register();
         SoundRegistry.register();
         RecipeRegistry.register();
+        CreativeTab.register();
+
+        REGISTRATE.register();
+
+        ExplosionEvents.DETONATE.register(Events::onExplosion);
+        CommandRegistrationCallback.EVENT.register(Events::onCommandRegister);
 
         FluidStorage.ITEM.registerFallback((itemStack, context) -> {
             if (itemStack.getItem() instanceof FluidStorageItem storageItem)
                 return storageItem.getFluidStorage(itemStack, context);
             return null;
         });
-
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, C_CREATIVE_TAB, CreativeTab.CREATIVE_TAB);
 
         if(FabricLoader.getInstance().isModLoaded("moonlight")) {
             EveryCompatCompat.init();
@@ -79,11 +75,12 @@ public class CreateDieselGenerators implements ModInitializer {
         Mods.COMPUTERCRAFT.executeIfInstalled(() -> CCProxy::register);
 
         BlockSpoutingBehaviour.addCustomSpoutInteraction(new ResourceLocation("createdieselgenerators:canister_filling"), new SpoutCanisterFilling());
-
-
-        ForgeConfigRegistry.INSTANCE.register("createdieselgenerators-server.toml",  ModConfig.Type.SERVER, ConfigRegistry.SERVER_SPEC);
+        //ForgeConfigRegistry.INSTANCE.register()
+        //ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigRegistry.SERVER_SPEC, "createdieselgenerators-server.toml");
+        //ConfigRegistry.register();
+        ForgeConfigRegistry.INSTANCE.register(ID,  ModConfig.Type.SERVER, ConfigRegistry.SERVER_SPEC);
+        //ModLoadingContext.registerConfig(ID,  ModConfig.Type.SERVER, ConfigRegistry.SERVER_SPEC);
     }
-
 
     public static int getOilAmount(ServerLevel serverLevel, Holder<Biome> biome, int x, int z, long seed){
         Random random = new Random(new Random(seed).nextLong() + (long) x * z);

@@ -118,10 +118,10 @@ public class MultiBlockContainerBlockItem extends BlockItem {
                 if (blockState.getBlock() == getBlock())
                     continue;
                 BlockPlaceContext context = BlockPlaceContext.at(ctx, offsetPos, face);
-                player.getPersistentData()
+                player.getCustomData()
                         .putBoolean("SilenceTankSound", true);
                 super.place(context);
-                player.getPersistentData()
+                player.getCustomData()
                         .remove("SilenceTankSound");
             }
         }

@@ -13,7 +13,10 @@ import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTank
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,46 +26,49 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.*;
 
-public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
+public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity implements SidedStorageBlockEntity {
+
+    public SmartFluidTankBehaviour tank;
+    int partialSecond;
     BlockState state;
     public boolean validFuel;
+    public AbstractComputerBehaviour computerBehaviour;
+    public ScrollOptionBehaviour<WindmillBearingBlockEntity.RotationDirection> movementDirection;
 
     public DieselGeneratorBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
         super(typeIn, pos, state);
         this.state = state;
     }
-    public SmartFluidTankBehaviour tank;
+
+    @Nullable
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (computerBehaviour.isPeripheralCap(cap))
-            return computerBehaviour.getPeripheralCapability();
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction face) {
         if(state.getValue(FACING) == Direction.DOWN) {
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.WEST)
-                return tank.getCapability().cast();
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.EAST)
-                return tank.getCapability().cast();
+            if (face == Direction.WEST)
+                return tank.getCapability();
+            if (face == Direction.EAST)
+                return tank.getCapability();
         }else if(state.getValue(FACING) == Direction.UP){
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.NORTH)
-                return tank.getCapability().cast();
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.SOUTH)
-                return tank.getCapability().cast();
+            if (face == Direction.NORTH)
+                return tank.getCapability();
+            if (face == Direction.SOUTH)
+                return tank.getCapability();
         }else{
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.DOWN)
-                return tank.getCapability().cast();
+            if (face == Direction.DOWN)
+                return tank.getCapability();
         }
-        return super.getCapability(cap, side);
+
+
+        if (face != Direction.DOWN) {
+            return tank.getCapability();
+        }
+        return null;
     }
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap) {
-        if(cap == ForgeCapabilities.FLUID_HANDLER)
-            return tank.getCapability().cast();
-        return super.getCapability(cap);
-    }
-    int partialSecond;
 
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
@@ -77,8 +83,7 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
         partialSecond = compound.getInt("PartialSecond");
         tank.read(compound, false);
     }
-    public AbstractComputerBehaviour computerBehaviour;
-    public ScrollOptionBehaviour<WindmillBearingBlockEntity.RotationDirection> movementDirection;
+
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
@@ -123,7 +128,7 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
         float stressBase = calculateAddedStressCapacity();
         if (Mth.equal(stressBase, 0))
             return added;
-        return containedFluidTooltip(tooltip, isPlayerSneaking, tank.getCapability().cast());
+        return containedFluidTooltip(tooltip, isPlayerSneaking, tank.getCapability());
     }
     int t = 0;
     @Override
@@ -135,7 +140,7 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
             if (state.getValue(TURBOCHARGED) ? t > FuelTypeManager.getSoundSpeed(tank.getPrimaryHandler().getFluid().getFluid()) / 2 : t > FuelTypeManager.getSoundSpeed(tank.getPrimaryHandler().getFluid().getFluid())) {
                 if (validFuel) {
                     t = 0;
-                    level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.get(), SoundSource.BLOCKS, state.getValue(TURBOCHARGED) ? 0.5f : 0.3f, state.getValue(TURBOCHARGED) ? 1.1f : 1f, false);
+                    level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.getMainEvent(), SoundSource.BLOCKS, state.getValue(TURBOCHARGED) ? 0.5f : 0.3f, state.getValue(TURBOCHARGED) ? 1.1f : 1f, false);
                 }
             } else {
                 t++;

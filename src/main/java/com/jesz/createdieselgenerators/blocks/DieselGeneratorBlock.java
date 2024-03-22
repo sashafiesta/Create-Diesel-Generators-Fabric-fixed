@@ -4,14 +4,30 @@ import com.jesz.createdieselgenerators.blocks.entity.BlockEntityRegistry;
 import com.jesz.createdieselgenerators.blocks.entity.DieselGeneratorBlockEntity;
 import com.jesz.createdieselgenerators.config.ConfigRegistry;
 import com.jesz.createdieselgenerators.items.ItemRegistry;
+import com.simibubi.create.api.connectivity.ConnectivityHandler;
+import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity;
+import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
+import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
+import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.content.schematics.requirement.ISpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import com.simibubi.create.foundation.fluid.FluidHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -34,9 +50,11 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -182,13 +200,114 @@ public class DieselGeneratorBlock extends DirectionalKineticBlock implements ISp
             return super.use(state, level, pos, player, hand, hit);
         if (itemInHand.isEmpty())
             return InteractionResult.PASS;
-        if(level.getBlockEntity(pos) instanceof SmartBlockEntity be){
-            IFluidHandler tank = be.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+        if(level.getBlockEntity(pos) instanceof DieselGeneratorBlockEntity){
+            FluidHelper.FluidExchange exchange = null;
+            FluidTankBlockEntity be = ConnectivityHandler.partAt(getBlockEntityType(), level, pos);
+            if (be == null) {
+                return InteractionResult.FAIL;
+            }
+
+            Direction direction = hit.getDirection();
+            Storage<FluidVariant> fluidTank = be.getFluidStorage(direction);
+            if (fluidTank == null) {
+                return InteractionResult.PASS;
+            }
+
+            FluidStack prevFluidInTank = TransferUtil.firstCopyOrEmpty(fluidTank);
+
+            if (FluidHelper.tryEmptyItemIntoBE(level, player, hand, itemInHand, be, direction)) {
+                exchange = FluidHelper.FluidExchange.ITEM_TO_TANK;
+            } else if (FluidHelper.tryFillItemFromBE(level, player, hand, itemInHand, be, direction)) {
+                exchange = FluidHelper.FluidExchange.TANK_TO_ITEM;
+            }
+
+            if (exchange == null) {
+                if (GenericItemEmptying.canItemBeEmptied(level, itemInHand)
+                        || GenericItemFilling.canItemBeFilled(level, itemInHand))
+                    return InteractionResult.SUCCESS;
+                return InteractionResult.PASS;
+            }
+
+            SoundEvent soundevent = null;
+            BlockState fluidState = null;
+            FluidStack fluidInTank = TransferUtil.firstOrEmpty(fluidTank);
+
+            if (exchange == FluidHelper.FluidExchange.ITEM_TO_TANK) {
+                if (!level.isClientSide) {
+                    FluidStack fluidInItem = GenericItemEmptying.emptyItem(level, itemInHand, true).getFirst();
+                    if (!fluidInItem.isEmpty() && fluidTank instanceof CreativeFluidTankBlockEntity.CreativeSmartFluidTank)
+                        ((CreativeFluidTankBlockEntity.CreativeSmartFluidTank) fluidTank).setContainedFluid(fluidInItem);
+                }
+
+                Fluid fluid = fluidInTank.getFluid();
+                fluidState = fluid.defaultFluidState()
+                        .createLegacyBlock();
+                soundevent = FluidVariantAttributes.getEmptySound(FluidVariant.of(fluid));
+            }
+
+            if (exchange == FluidHelper.FluidExchange.TANK_TO_ITEM) {
+                if (!level.isClientSide)
+                    if (fluidTank instanceof CreativeFluidTankBlockEntity.CreativeSmartFluidTank)
+                        ((CreativeFluidTankBlockEntity.CreativeSmartFluidTank) fluidTank).setContainedFluid(FluidStack.EMPTY);
+
+                Fluid fluid = prevFluidInTank.getFluid();
+                fluidState = fluid.defaultFluidState()
+                        .createLegacyBlock();
+                soundevent = FluidVariantAttributes.getFillSound(FluidVariant.of(fluid));
+            }
+
+            if (soundevent != null && !level.isClientSide) {
+                float pitch = Mth.clamp(1 - (1f * fluidInTank.getAmount() / (FluidTankBlockEntity.getCapacityMultiplier() * 16)), 0, 1);
+                pitch /= 1.5f;
+                pitch += .5f;
+                pitch += (level.random.nextFloat() - .5f) / 4f;
+                level.playSound(null, pos, soundevent, SoundSource.BLOCKS, .5f, pitch);
+            }
+
+            if (!fluidInTank.isFluidEqual(prevFluidInTank)) {
+                if (be instanceof FluidTankBlockEntity) {
+                    FluidTankBlockEntity controllerBE = ((FluidTankBlockEntity) be).getControllerBE();
+                    if (controllerBE != null) {
+                        if (fluidState != null && !level.isClientSide) {
+                            BlockParticleOption blockParticleData =
+                                    new BlockParticleOption(ParticleTypes.BLOCK, fluidState);
+                            float levelA = (float) fluidInTank.getAmount() / TransferUtil.firstCapacity(fluidTank);
+
+                            boolean reversed = FluidVariantAttributes.isLighterThanAir(fluidInTank.getType());
+                            if (reversed)
+                                levelA = 1 - levelA;
+
+                            Vec3 vec = hit.getLocation();
+                            vec = new Vec3(vec.x, controllerBE.getBlockPos()
+                                    .getY() + levelA * (controllerBE.getHeight() - .5f) + .25f, vec.z);
+                            Vec3 motion = player.position()
+                                    .subtract(vec)
+                                    .scale(1 / 20f);
+                            vec = vec.add(motion);
+                            level.addParticle(blockParticleData, vec.x, vec.y, vec.z, motion.x, motion.y, motion.z);
+                            return InteractionResult.SUCCESS;
+                        }
+
+                        controllerBE.sendDataImmediately();
+                        controllerBE.setChanged();
+                    }
+                }
+            }
+
+            /*
+            //IFluidHandler tank = be.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
+            FluidTankBlockEntity be = ConnectivityHandler.partAt(getBlockEntityType(), level, pos);
+            Direction direction = hit.getDirection();
+
+            Storage<FluidVariant> tank = be.getFluidStorage(direction);
             if(tank == null)
                 return InteractionResult.PASS;
             if(itemInHand.getItem() instanceof BucketItem bi) {
-                if (!tank.getFluidInTank(0).isEmpty())
+                if (!be.getFluid(0).isEmpty()) {
                     return InteractionResult.FAIL;
+                }
+
+                TransferUtil.insertFluid(new FluidStack())
                 tank.fill(new FluidStack(bi.getFluid(), 1000), IFluidHandler.FluidAction.EXECUTE);
                 if(!player.isCreative())
                     player.setItemInHand(hand, new ItemStack(Items.BUCKET));
@@ -206,6 +325,8 @@ public class DieselGeneratorBlock extends DirectionalKineticBlock implements ISp
             if(itemTank == null)
                 return InteractionResult.PASS;
             itemTank.drain(tank.fill(itemTank.getFluidInTank(0), IFluidHandler.FluidAction.EXECUTE), IFluidHandler.FluidAction.EXECUTE);
+
+             */
         }
         return super.use(state, level, pos, player, hand, hit);
     }

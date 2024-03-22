@@ -10,7 +10,8 @@ public class FurnaceBurnItem extends Item {
         super(properties);
         this.burnTime = burnTime;
     }
-    @Override
+
+    //TODO
     public int getBurnTime(ItemStack stack, RecipeType<?> recipeType) {
         return burnTime;
     }

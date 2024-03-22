@@ -3,20 +3,14 @@ package com.jesz.createdieselgenerators.compat.computercraft;
 import com.jesz.createdieselgenerators.blocks.entity.DieselGeneratorBlockEntity;
 import com.jesz.createdieselgenerators.blocks.entity.HugeDieselEngineBlockEntity;
 import com.jesz.createdieselgenerators.blocks.entity.LargeDieselGeneratorBlockEntity;
-import com.jesz.createdieselgenerators.compat.computercraft.peripherals.DieselEnginePeripheral;
-import com.jesz.createdieselgenerators.compat.computercraft.peripherals.HugeDieselEnginePeripheral;
-import com.jesz.createdieselgenerators.compat.computercraft.peripherals.ModularDieselEnginePeripheral;
 import com.simibubi.create.compat.computercraft.AbstractComputerBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ComputerBehaviour extends AbstractComputerBehaviour {
+    public ComputerBehaviour(SmartBlockEntity te) {
+        super(te);
+    }
+    /*
     protected static final Capability<IPeripheral> PERIPHERAL_CAPABILITY =
             CapabilityManager.get(new CapabilityToken<>() {
             });
@@ -55,4 +49,6 @@ public class ComputerBehaviour extends AbstractComputerBehaviour {
         if (peripheral != null)
             peripheral.invalidate();
     }
+
+     */
 }

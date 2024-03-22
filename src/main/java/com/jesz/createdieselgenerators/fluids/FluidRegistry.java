@@ -1,17 +1,23 @@
 package com.jesz.createdieselgenerators.fluids;
 
+import com.jesz.createdieselgenerators.CreativeTab;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import com.tterrag.registrate.fabric.SimpleFlowableFluid;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
+import net.fabricmc.fabric.api.transfer.v1.fluid.*;
+import net.fabricmc.fabric.api.transfer.v1.fluid.base.EmptyItemFluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.base.FullItemFluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 
 import javax.annotation.Nullable;
 
 import static com.jesz.createdieselgenerators.CreateDieselGenerators.REGISTRATE;
+import static net.minecraft.world.item.Items.BUCKET;
 
 public class FluidRegistry {
 
@@ -23,6 +29,15 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(3)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+                    })
                     .register();
     public static final FluidEntry<SimpleFlowableFluid.Flowing> CRUDE_OIL =
             REGISTRATE.fluid("crude_oil", new ResourceLocation("createdieselgenerators:block/crude_oil_still"), new ResourceLocation("createdieselgenerators:block/crude_oil_flow"))
@@ -32,6 +47,16 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(2)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+
+                    })
                     .register();
 
     public static final FluidEntry<SimpleFlowableFluid.Flowing> BIODIESEL =
@@ -42,6 +67,16 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(3)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+
+                    })
                     .register();
     public static final FluidEntry<SimpleFlowableFluid.Flowing> DIESEL =
             REGISTRATE.fluid("diesel", new ResourceLocation("createdieselgenerators:block/diesel_still"), new ResourceLocation("createdieselgenerators:block/diesel_flow"))
@@ -51,6 +86,16 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(3)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+
+                    })
                     .register();
     public static final FluidEntry<SimpleFlowableFluid.Flowing> GASOLINE =
             REGISTRATE.fluid("gasoline", new ResourceLocation("createdieselgenerators:block/gasoline_still"), new ResourceLocation("createdieselgenerators:block/gasoline_flow"))
@@ -60,6 +105,16 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(3)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+
+                    })
                     .register();
     public static final FluidEntry<SimpleFlowableFluid.Flowing> ETHANOL =
             REGISTRATE.fluid("ethanol", new ResourceLocation("createdieselgenerators:block/ethanol_still"), new ResourceLocation("createdieselgenerators:block/ethanol_flow"))
@@ -69,6 +124,16 @@ public class FluidRegistry {
                             .tickRate(25)
                             .flowSpeed(5)
                             .blastResistance(100f))
+                    .source(SimpleFlowableFluid.Source::new)
+                    .onRegisterAfter(Registries.ITEM, plant -> {
+                        Fluid source = plant.getSource();
+
+                        FluidStorage.combinedItemApiProvider(source.getBucket()).register(context ->
+                                new FullItemFluidStorage(context, bucket -> ItemVariant.of(BUCKET), FluidVariant.of(source), FluidConstants.BUCKET));
+                        FluidStorage.combinedItemApiProvider(BUCKET).register(context ->
+                                new EmptyItemFluidStorage(context, bucket -> ItemVariant.of(source.getBucket()), source, FluidConstants.BUCKET));
+
+                    })
                     .register();
 
     public static void register() {}

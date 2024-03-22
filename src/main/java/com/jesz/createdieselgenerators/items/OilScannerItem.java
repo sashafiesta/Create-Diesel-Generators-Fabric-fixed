@@ -6,6 +6,8 @@ import com.jesz.createdieselgenerators.world.OilChunksSavedData;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.AllTags;
 import com.simibubi.create.foundation.utility.Components;
+import io.github.fabricators_of_create.porting_lib.util.EnvExecutor;
+import net.fabricmc.api.EnvType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -94,11 +96,11 @@ public class OilScannerItem extends Item {
     }
 
     public void registerModelOverrides() {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+
             ItemProperties.register(ItemRegistry.OIL_SCANNER.get(), new ResourceLocation("createdieselgenerators:oil_scanner_state"), (pStack, pLevel, pEntity, pSeed) -> {
                 CompoundTag tag = pStack.getTag();
                 return tag == null ? 0 : tag.getInt("Type");
             });
-        });
+
     }
 }

@@ -13,7 +13,10 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOp
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Lang;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SidedStorageBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,15 +27,18 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.POWERED;
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.SILENCED;
+import static com.jesz.createdieselgenerators.blocks.HugeDieselEngineBlock.FACING;
 import static com.jesz.createdieselgenerators.blocks.LargeDieselGeneratorBlock.*;
 
-public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntity {
+public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntity implements SidedStorageBlockEntity {
     BlockState state;
     public boolean validFuel;
     public int stacked;
@@ -50,30 +56,20 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
 
     public SmartFluidTankBehaviour tank;
 
+    @Nullable
     @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (computerBehaviour.isPeripheralCap(cap))
-            return computerBehaviour.getPeripheralCapability();
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction face) {
         if (state.getValue(PIPE)) {
             LargeDieselGeneratorBlockEntity frontEngine = this.frontEngine.get();
-            if (cap == ForgeCapabilities.FLUID_HANDLER && side == Direction.UP)
+            if (face == Direction.UP)
                 if(frontEngine != null)
-                    return frontEngine.tank.getCapability().cast();
+                    return frontEngine.tank.getCapability();
                 else
-                    return tank.getCapability().cast();
+                    return tank.getCapability();
         }
-        return super.getCapability(cap, side);
+        return null;
     }
-    @Override
-    public <T> LazyOptional<T> getCapability(Capability<T> cap) {
-        LargeDieselGeneratorBlockEntity frontEngine = this.frontEngine.get();
-        if (cap == ForgeCapabilities.FLUID_HANDLER)
-            if(frontEngine != null)
-                return frontEngine.tank.getCapability().cast();
-            else
-                return tank.getCapability().cast();
-        return super.getCapability(cap);
-    }
+
     int partialSecond;
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
@@ -231,7 +227,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
             validFuel = FuelTypeManager.getGeneratedSpeed(this, tank.getPrimaryHandler().getFluid().getFluid()) != 0;
 
         if(frontEngine != null && t > FuelTypeManager.getSoundSpeed(frontEngine.tank.getPrimaryHandler().getFluid().getFluid()) && frontEngine.validFuel && !state.getValue(SILENCED) && (((stacked % 6) == 0) || end)){
-            level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.get(), SoundSource.BLOCKS, 0.5f,1f, false);
+            level.playLocalSound(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), SoundRegistry.DIESEL_ENGINE_SOUND.getMainEvent(), SoundSource.BLOCKS, 0.5f,1f, false);
             t = 0;
         }else
             t++;

@@ -4,7 +4,12 @@ import com.jesz.createdieselgenerators.blocks.entity.CanisterBlockEntity;
 import com.jesz.createdieselgenerators.config.ConfigRegistry;
 import com.simibubi.create.api.behaviour.BlockSpoutingBehaviour;
 import com.simibubi.create.content.fluids.spout.SpoutBlockEntity;
-import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -18,9 +23,21 @@ public class SpoutCanisterFilling extends BlockSpoutingBehaviour {
             return 0;
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CanisterBlockEntity be){
-            IFluidHandler handler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.UP).orElse(null);
-            if(handler.getFluidInTank(0).isFluidEqual(availableFluid) || handler.getFluidInTank(0).isEmpty())
-                return handler.fill(availableFluid, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+            Storage<FluidVariant> handler = TransferUtil.getFluidStorage(level, pos, blockEntity, Direction.UP);
+            //IFluidHandler handler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, Direction.UP).orElse(null);
+            long amount = availableFluid.getAmount();
+            try (Transaction t = TransferUtil.getTransaction()) {
+                long inserted = handler.insert(availableFluid.getType(), amount, t);
+                if (amount < FluidConstants.BUCKET) {
+                    try (Transaction nested = t.openNested()) {
+                        if (handler.insert(availableFluid.getType(), 1, nested) == 1)
+                            return 0;
+                    }
+                }
+
+                if (!simulate) t.commit();
+                return inserted;
+            }
         }
         return 0;
     }
