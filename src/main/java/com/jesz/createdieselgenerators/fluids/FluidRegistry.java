@@ -1,6 +1,8 @@
 package com.jesz.createdieselgenerators.fluids;
 
 import com.jesz.createdieselgenerators.CreativeTab;
+import com.simibubi.create.AllFluids;
+import com.simibubi.create.AllTags;
 import com.tterrag.registrate.util.entry.FluidEntry;
 import com.tterrag.registrate.fabric.SimpleFlowableFluid;
 import net.fabricmc.fabric.api.transfer.v1.fluid.*;
@@ -30,6 +32,7 @@ public class FluidRegistry {
                             .flowSpeed(3)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("plant_oil"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 
@@ -48,6 +51,7 @@ public class FluidRegistry {
                             .flowSpeed(2)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("crude_oil"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 
@@ -68,6 +72,7 @@ public class FluidRegistry {
                             .flowSpeed(3)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("biodiesel"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 
@@ -87,6 +92,7 @@ public class FluidRegistry {
                             .flowSpeed(3)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("diesel"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 
@@ -106,6 +112,7 @@ public class FluidRegistry {
                             .flowSpeed(3)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("gasoline"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 
@@ -125,6 +132,7 @@ public class FluidRegistry {
                             .flowSpeed(5)
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
+                    .tag(AllTags.forgeFluidTag("ethanol"))
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 

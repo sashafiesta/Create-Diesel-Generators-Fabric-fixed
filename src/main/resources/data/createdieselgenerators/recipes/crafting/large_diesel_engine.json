@@ -16,7 +16,7 @@
       "item": "minecraft:polished_blackstone_slab"
     },
     "S": {
-      "tag": "forge:plates/brass"
+      "item": "create:brass_sheet"
     }
   },
   "result": {

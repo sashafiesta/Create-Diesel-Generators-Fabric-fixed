@@ -10,10 +10,10 @@
       "item": "create:andesite_alloy"
     },
     "S": {
-      "tag": "forge:plates/iron"
+      "item": "create:iron_sheet"
     },
     "Z": {
-      "tag": "forge:ingots/zinc"
+      "item": "create:zinc_ingot"
     },
     "P": {
       "item": "create:propeller"

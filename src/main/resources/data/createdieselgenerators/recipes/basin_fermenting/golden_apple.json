@@ -5,19 +5,19 @@
       "item": "minecraft:apple"
     },
     {
-      "tag": "forge:ingots/gold"
+      "item": "minecraft:gold_ingot"
     },
     {
-      "tag": "forge:ingots/gold"
+      "item": "minecraft:gold_ingot"
     },
     {
-      "tag": "forge:ingots/gold"
+      "item": "minecraft:gold_ingot"
     },
     {
-      "tag": "forge:ingots/gold"
+      "item": "minecraft:gold_ingot"
     },
     {
-      "tag": "forge:ingots/gold"
+      "item": "minecraft:gold_ingot"
     },
     {
       "fluid": "create:potion",

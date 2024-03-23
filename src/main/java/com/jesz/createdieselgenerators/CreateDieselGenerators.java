@@ -50,6 +50,7 @@ public class CreateDieselGenerators implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        TagRegistry.FluidTags.init();
         SoundRegistry.prepare();
         ItemRegistry.register();
         BlockRegistry.register();

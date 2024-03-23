@@ -12,10 +12,10 @@
       "item": "create:andesite_alloy"
     },
     "Z": {
-      "tag": "forge:ingots/zinc"
+      "item": "create:zinc_ingot"
     },
     "I": {
-      "tag": "forge:plates/iron"
+      "item": "create:iron_sheet"
     },
     "S": {
       "item": "create:shaft"

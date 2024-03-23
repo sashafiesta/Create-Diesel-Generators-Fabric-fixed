@@ -10,7 +10,7 @@
       "item": "create:andesite_alloy"
     },
     "Z": {
-      "tag": "forge:ingots/zinc"
+      "item": "create:zinc_ingot"
     },
     "K": {
       "item": "minecraft:dried_kelp"

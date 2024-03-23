@@ -10,10 +10,10 @@
       "item": "create:andesite_alloy"
     },
     "S": {
-      "tag": "forge:plates/iron"
+      "item": "create:iron_sheet"
     },
     "I": {
-      "tag": "forge:ingots/iron"
+      "item": "iron_ingot"
     },
     "C": {
       "item": "minecraft:clock"

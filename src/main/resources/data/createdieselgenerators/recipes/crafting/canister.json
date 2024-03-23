@@ -10,10 +10,10 @@
       "item": "create:andesite_alloy"
     },
     "B": {
-      "tag": "forge:barrels/wooden"
+      "item": "minecraft:barrel"
     },
     "Z": {
-      "tag": "forge:plates/iron"
+      "item": "create:iron_sheet"
     }
   },
   "result": {

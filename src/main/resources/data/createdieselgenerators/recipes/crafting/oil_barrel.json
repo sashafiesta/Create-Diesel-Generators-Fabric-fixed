@@ -5,10 +5,10 @@
   ],
   "key": {
     "B": {
-      "tag": "forge:barrels/wooden"
+      "item": "minecraft:barrel"
     },
     "S": {
-      "tag": "forge:plates/iron"
+      "item": "create:iron_sheet"
     }
   },
   "result": {

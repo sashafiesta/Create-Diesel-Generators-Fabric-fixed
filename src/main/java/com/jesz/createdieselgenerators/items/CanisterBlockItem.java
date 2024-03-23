@@ -144,7 +144,10 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
             ListTag list = new ListTag();
             list.add(fluidTag);
             tag.put("Tanks", list);
-            container.getItemVariant().getNbt().put("BlockEntityTag", tag);
+            if (container.getItemVariant().getNbt() != null) {
+                container.getItemVariant().getNbt().put("BlockEntityTag", tag);
+            }
+
             return true;
         }
 
