@@ -692,16 +692,8 @@ public class DistillationTankBlockEntity extends SmartBlockEntity implements IMu
         applyFluidTankSize(blocks);
     }
 
-    @Nullable
     @Override
-    public Storage<FluidVariant> getFluidStorage(@Nullable Direction direction) {
-        if (exposedTank == null)
-            refreshCapability();
-        return exposedTank;
-    }
-
-
-        public FluidTank getTankInventory(int tank) {
+    public FluidTank getTank(int tank) {
         return tankInventory;
     }
 
@@ -709,6 +701,14 @@ public class DistillationTankBlockEntity extends SmartBlockEntity implements IMu
     public FluidStack getFluid(int tank) {
         return tankInventory.getFluid()
                 .copy();
+    }
+
+    @Nullable
+    @Override
+    public Storage<FluidVariant> getFluidStorage(@Nullable Direction direction) {
+        if (exposedTank == null)
+            refreshCapability();
+        return exposedTank;
     }
 
     public void updateVerticalMulti() {

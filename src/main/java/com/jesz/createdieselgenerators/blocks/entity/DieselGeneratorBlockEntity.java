@@ -155,7 +155,6 @@ public class DieselGeneratorBlockEntity extends GeneratingKineticBlockEntity imp
         if (partialSecond >= 20) {
             partialSecond = 0;
             if (validFuel) {
-                System.out.println("Valid");
                 if (tank.getPrimaryHandler().getFluid().getAmount() >= FuelTypeManager.getBurnRate(this, tank.getPrimaryHandler().getFluid().getFluid()) * (!state.getValue(TURBOCHARGED) ? 1 : ConfigRegistry.TURBOCHARGED_ENGINE_BURN_RATE_MULTIPLIER.get().floatValue()))
                     tank.getPrimaryHandler().setFluid(FluidHelper.copyStackWithAmount(tank.getPrimaryHandler().getFluid(),
                             (int) (tank.getPrimaryHandler().getFluid().getAmount() - FuelTypeManager.getBurnRate(this, tank.getPrimaryHandler().getFluid().getFluid()) * (!state.getValue(TURBOCHARGED) ? 1 : ConfigRegistry.TURBOCHARGED_ENGINE_BURN_RATE_MULTIPLIER.get().floatValue()))));

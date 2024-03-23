@@ -11,6 +11,7 @@ import com.jesz.createdieselgenerators.items.ItemRegistry;
 import com.jesz.createdieselgenerators.items.LighterItemRenderer;
 import com.jesz.createdieselgenerators.other.CDGPartialModel;
 import com.jesz.createdieselgenerators.ponder.PonderIndex;
+import com.jesz.createdieselgenerators.sounds.SoundRegistry;
 import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import fuzs.forgeconfigapiport.impl.ForgeConfigAPIPort;
 import io.github.fabricators_of_create.porting_lib.util.ItemRendererHelper;

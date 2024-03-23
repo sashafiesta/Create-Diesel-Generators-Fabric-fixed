@@ -30,14 +30,23 @@ public class DistillationControllerItem extends Item {
             BlockPos cPos = ftbe.getController();
             int width = ftbe.getControllerBE().getWidth();
             int height = ftbe.getControllerBE().getHeight();
-            FluidStack fluidInTank = ftbe.getFluid(0);
 
             //FluidStack fluidInTank = ftbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(new FluidTank(0)).getFluidInTank(0).copy();
+            //FluidStack fluidInTank = ftbe.getFluid(0);
+            //FluidTank tank = ftbe.getTank(0);
+            //if (tank == null) {
+            //    tank = new FluidTank(0);
+            //}
+            //fluidInTank = tank.getFluid().copy();
+
+
+            //System.out.println("Count");
             for (int x = 0; x < width; x++) {
                 for (int z = 0; z < width; z++) {
                     for (int y = 0; y < height; y++) {
                         if(item.getCount() == 0 && !context.getPlayer().isCreative())
                             break;
+                        System.out.println("Count:" + x + y + z);
                         context.getLevel().setBlock(cPos.offset(x, y, z), BlockRegistry.DISTILLATION_TANK.getDefaultState(), 1);
                         context.getLevel().updateNeighborsAt(cPos.offset(x, y, z), BlockRegistry.DISTILLATION_TANK.getDefaultState().getBlock());
                         if(!context.getPlayer().isCreative())
@@ -54,10 +63,10 @@ public class DistillationControllerItem extends Item {
                             dtbe.updateConnectivity();
                             if(x == 0 && y == 0 && z == 0){
                                 //IFluidHandler tank = dtbe.getCapability(ForgeCapabilities.FLUID_HANDLER).orElse(null);
-                                Storage<FluidVariant> handler = TransferUtil.getFluidStorage(context.getLevel(), cPos, dtbe, null);
-                                if(handler != null && fluidInTank.getType() != FluidVariant.blank()) {
-                                    TransferUtil.insertFluid(handler, fluidInTank);
-                                }
+                                //Storage<FluidVariant> handler = TransferUtil.getFluidStorage(context.getLevel(), cPos, dtbe, null);
+                                //if(handler != null && fluidInTank.getType() != FluidVariant.blank()) {
+                                //    TransferUtil.insertFluid(handler, fluidInTank);
+                                //}
 
                                 dtbe.updateTemperature();
                             }
