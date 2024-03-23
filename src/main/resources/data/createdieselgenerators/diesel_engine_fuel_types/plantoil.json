@@ -1,5 +1,5 @@
 {
-  "fluid": "#forge:plantoil",
+  "fluid": "#c:plantoil",
   "sound_speed": 2,
   "normal": {
     "speed": 74.0,

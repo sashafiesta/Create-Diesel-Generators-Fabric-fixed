@@ -1,5 +1,5 @@
 {
-  "fluid": "#forge:ethanol",
+  "fluid": "#c:ethanol",
   "sound_speed": 1,
   "normal": {
     "speed": 96.0,

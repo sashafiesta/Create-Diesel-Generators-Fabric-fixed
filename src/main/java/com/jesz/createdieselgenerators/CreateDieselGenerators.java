@@ -9,6 +9,7 @@ import com.jesz.createdieselgenerators.entity.EntityRegistry;
 import com.jesz.createdieselgenerators.fluids.FluidRegistry;
 import com.jesz.createdieselgenerators.items.FluidStorageItem;
 import com.jesz.createdieselgenerators.items.ItemRegistry;
+import com.jesz.createdieselgenerators.other.FuelTypeManager;
 import com.jesz.createdieselgenerators.other.SpoutCanisterFilling;
 import com.jesz.createdieselgenerators.recipes.RecipeRegistry;
 import com.jesz.createdieselgenerators.sounds.SoundRegistry;
@@ -21,6 +22,7 @@ import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import io.github.fabricators_of_create.porting_lib.event.common.ExplosionEvents;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Holder;
@@ -30,6 +32,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.biome.Biome;
@@ -58,6 +61,8 @@ public class CreateDieselGenerators implements ModInitializer {
         CreativeTab.register();
 
         REGISTRATE.register();
+
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(FuelTypeManager.ReloadListener.INSTANCE);
 
         ExplosionEvents.DETONATE.register(Events::onExplosion);
         CommandRegistrationCallback.EVENT.register(Events::onCommandRegister);

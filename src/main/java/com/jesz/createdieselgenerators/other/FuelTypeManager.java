@@ -3,7 +3,9 @@ package com.jesz.createdieselgenerators.other;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.jesz.createdieselgenerators.CreateDieselGenerators;
 import com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -23,13 +25,19 @@ public class FuelTypeManager {
     public static Map<Fluid, CDGFuelType> fuelTypes = new HashMap<>();
     static Map<String, CDGFuelType> fuelTags = new HashMap<>();
 
-    public static class ReloadListener extends SimpleJsonResourceReloadListener{
+    public static class ReloadListener extends SimpleJsonResourceReloadListener implements IdentifiableResourceReloadListener {
         private static final Gson GSON = new Gson();
         public static final ReloadListener INSTANCE = new ReloadListener();
 
         public ReloadListener() {
             super(GSON, "diesel_engine_fuel_types");
         }
+
+        @Override
+        public ResourceLocation getFabricId() {
+            return CreateDieselGenerators.asResource("diesel_engine_fuel_types");
+        }
+
         @Override
         protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
             fuelTypes.clear();
@@ -58,6 +66,7 @@ public class FuelTypeManager {
                     tryPopulateTags();
                 }else{
                     var fluid = BuiltInRegistries.FLUID.getOptional(new ResourceLocation(fluidId));//.getDelegate(new ResourceLocation(fluidId));
+                    System.out.println("FluidThezeNuts: " + fluid);
                     if(fluid.isEmpty())
                         return;
                     fuelTypes.put(fluid.get(), new CDGFuelType(
@@ -75,6 +84,8 @@ public class FuelTypeManager {
                 }
             }
         }
+
+
     }
     public static void tryPopulateTags(){
         if(fuelTags.isEmpty())
@@ -99,6 +110,8 @@ public class FuelTypeManager {
     }
     public static float getGeneratedSpeed(BlockEntity be, Fluid fluid){
         tryPopulateTags();
+        //System.out.println("TYPES: " + fuelTypes);
+        //System.out.println("Fluid: " + fluid.defaultFluidState());
         if(fuelTypes.containsKey(fluid))
             return fuelTypes.get(fluid).getGenerated(be).getFirst();
         return 0;

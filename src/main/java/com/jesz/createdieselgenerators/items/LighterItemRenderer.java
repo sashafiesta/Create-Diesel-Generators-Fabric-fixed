@@ -25,7 +25,7 @@ public class LighterItemRenderer extends CustomRenderedItemModelRenderer {
                         renderer.render(PartialModels.lighterSkinModels.get(CreateDieselGeneratorsClient.lighterSkins.get(stack.getHoverName().getString().toLowerCase(Locale.ROOT))).getSecond().getSecond().get(), light);
                     else
                         renderer.render(PartialModels.lighterSkinModels.get(CreateDieselGeneratorsClient.lighterSkins.get(stack.getHoverName().getString().toLowerCase(Locale.ROOT))).getFirst().get(), light);
-                    return;
+
                 }
             }
             if (stack.getTag() == null || stack.getTag().getInt("Type") == 0)
