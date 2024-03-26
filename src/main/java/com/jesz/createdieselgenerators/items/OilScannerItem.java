@@ -99,11 +99,11 @@ public class OilScannerItem extends Item {
     }
 
     public void registerModelOverrides() {
-
+        EnvExecutor.runWhenOn(EnvType.CLIENT, () -> () -> {
             ItemProperties.register(ItemRegistry.OIL_SCANNER.get(), new ResourceLocation("createdieselgenerators:oil_scanner_state"), (pStack, pLevel, pEntity, pSeed) -> {
                 CompoundTag tag = pStack.getTag();
                 return tag == null ? 0 : tag.getInt("Type");
             });
-
+        });
     }
 }
