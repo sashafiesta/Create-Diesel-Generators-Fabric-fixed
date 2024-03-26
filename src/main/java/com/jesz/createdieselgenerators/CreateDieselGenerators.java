@@ -33,6 +33,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.biome.Biome;
@@ -93,15 +94,24 @@ public class CreateDieselGenerators implements ModInitializer {
         int amount = Math.abs(random.nextInt());
         var reg = serverLevel.registryAccess().registry(Registries.BIOME);
         if (reg.isPresent()) {
-            boolean isHighInOil = biome == null || biome.is(AllTags.optionalTag(reg.get(), new ResourceLocation("createdieselgenerators:oil_biomes")));
-            if(biome != null && biome.is(AllTags.optionalTag(reg.get(), new ResourceLocation("createdieselgenerators:deny_oil_biomes"))))
+
+            TagKey<Biome> key = AllTags.optionalTag(reg.get(), CreateDieselGenerators.asResource("oil_biomes"));
+
+            boolean isHighInOil = biome == null || biome.is(key);
+            if(biome != null && biome.is(AllTags.optionalTag(reg.get(), new ResourceLocation("createdieselgenerators:deny_oil_biomes")))) {
                 return 0;
-            if(isHighInOil ? (random.nextFloat(0, 100) >= ConfigRegistry.HIGH_OIL_PERCENTAGE.get()) : (amount % 100 >= ConfigRegistry.OIL_PERCENTAGE.get()))
+            }
+
+            if(isHighInOil ? (random.nextFloat(0, 100) >= ConfigRegistry.HIGH_OIL_PERCENTAGE.get()) : (amount % 100 >= ConfigRegistry.OIL_PERCENTAGE.get())) {
                 return 0;
-            if(ConfigRegistry.OIL_DEPOSITS_INFINITE.get())
+            }
+            if(ConfigRegistry.OIL_DEPOSITS_INFINITE.get()) {
                 return Integer.MAX_VALUE;
-            if(isHighInOil)
+            }
+
+            if(isHighInOil) {
                 return (int) (Mth.clamp(amount % 400000, 8000, 400000)*ConfigRegistry.HIGH_OIL_MULTIPLIER.get());
+            }
             return (int) (Mth.clamp(amount % 15000, 0, 12000)*ConfigRegistry.OIL_MULTIPLIER.get());
         }
         return 0;

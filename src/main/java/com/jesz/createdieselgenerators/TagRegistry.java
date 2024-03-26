@@ -1,50 +1,69 @@
 package com.jesz.createdieselgenerators;
 
 import com.simibubi.create.AllTags;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.utility.Lang;
 import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
-import static com.simibubi.create.AllTags.NameSpace.FORGE;
-import static com.simibubi.create.AllTags.NameSpace.MOD;
 import static com.simibubi.create.AllTags.optionalTag;
 
 public class TagRegistry {
 
+    public enum NameSpace {
+
+        CDG_MOD(CreateDieselGenerators.ID, false, true),
+        FORGE("c");
+
+        public final String id;
+        public final boolean optionalDefault;
+        public final boolean alwaysDatagenDefault;
+
+        NameSpace(String id) {
+            this(id, true, false);
+        }
+
+        NameSpace(String id, boolean optionalDefault, boolean alwaysDatagenDefault) {
+            this.id = id;
+            this.optionalDefault = optionalDefault;
+            this.alwaysDatagenDefault = alwaysDatagenDefault;
+        }
+    }
+
     public enum FluidTags {
 
-        CRUDE_OIL(FORGE),
-        BIODIESEL(FORGE),
-        ETHANOL(FORGE),
-        GASOLINE(FORGE),
-        PLANT_OIL(FORGE)
-
-        ;
+        PUMPJACK_OUTPUT(NameSpace.CDG_MOD),
+        CRUDE_OIL(NameSpace.FORGE),
+        BIODIESEL(NameSpace.FORGE),
+        ETHANOL(NameSpace.FORGE),
+        GASOLINE(NameSpace.FORGE),
+        PLANT_OIL(NameSpace.FORGE);
 
         public final TagKey<Fluid> tag;
         public final boolean alwaysDatagen;
 
         FluidTags() {
-            this(MOD);
+            this(NameSpace.CDG_MOD);
         }
 
-        FluidTags(AllTags.NameSpace namespace) {
+        FluidTags(NameSpace namespace) {
             this(namespace, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        FluidTags(AllTags.NameSpace namespace, String path) {
+        FluidTags(NameSpace namespace, String path) {
             this(namespace, path, namespace.optionalDefault, namespace.alwaysDatagenDefault);
         }
 
-        FluidTags(AllTags.NameSpace namespace, boolean optional, boolean alwaysDatagen) {
+        FluidTags(NameSpace namespace, boolean optional, boolean alwaysDatagen) {
             this(namespace, null, optional, alwaysDatagen);
         }
 
-        FluidTags(AllTags.NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
+        FluidTags(NameSpace namespace, String path, boolean optional, boolean alwaysDatagen) {
             ResourceLocation id = new ResourceLocation(namespace.id, path == null ? Lang.asId(name()) : path);
             tag = optionalTag(BuiltInRegistries.FLUID, id);
             this.alwaysDatagen = alwaysDatagen;

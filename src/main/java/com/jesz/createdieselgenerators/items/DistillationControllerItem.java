@@ -46,7 +46,6 @@ public class DistillationControllerItem extends Item {
                     for (int y = 0; y < height; y++) {
                         if(item.getCount() == 0 && !context.getPlayer().isCreative())
                             break;
-                        System.out.println("Count:" + x + y + z);
                         context.getLevel().setBlock(cPos.offset(x, y, z), BlockRegistry.DISTILLATION_TANK.getDefaultState(), 1);
                         context.getLevel().updateNeighborsAt(cPos.offset(x, y, z), BlockRegistry.DISTILLATION_TANK.getDefaultState().getBlock());
                         if(!context.getPlayer().isCreative())

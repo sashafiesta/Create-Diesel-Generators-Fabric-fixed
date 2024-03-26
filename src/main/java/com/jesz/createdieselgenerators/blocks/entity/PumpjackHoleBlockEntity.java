@@ -1,6 +1,8 @@
 package com.jesz.createdieselgenerators.blocks.entity;
 
 import com.jesz.createdieselgenerators.CreateDieselGenerators;
+import com.jesz.createdieselgenerators.TagRegistry;
+import com.jesz.createdieselgenerators.fluids.FluidRegistry;
 import com.jesz.createdieselgenerators.world.OilChunksSavedData;
 import com.simibubi.create.content.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.equipment.goggles.IHaveHoveringInformation;
@@ -10,8 +12,10 @@ import com.simibubi.create.content.fluids.pipes.GlassFluidPipeBlock;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
+import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.utility.Components;
 import com.simibubi.create.foundation.utility.Lang;
+import io.github.fabricators_of_create.porting_lib.tags.Tags;
 import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -26,6 +30,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.PipeBlock;
@@ -37,6 +42,7 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.FACING;
 import static com.simibubi.create.AllTags.optionalTag;
@@ -49,6 +55,10 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
     public int headPos = 0;
     public int bearingPos = 0;
     public boolean started = false;
+    byte tt = 0;
+    public int pipeLength = 0;
+    boolean valid = false;
+
     public PumpjackHoleBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.state = state;
@@ -102,9 +112,7 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
         oilAmount = compound.getInt("OilAmount");
         started = compound.getBoolean("Started");
     }
-    byte tt = 0;
-    public int pipeLength = 0;
-    boolean valid = false;
+
     @Override
     public void tick() {
         super.tick();
@@ -157,6 +165,7 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
         tank = SmartFluidTankBehaviour.single(this, 1000);
         behaviours.add(tank);
     }
+
     public void tickFluid(boolean isCrankLarge) {
         if(!level.isClientSide && valid) {
             ChunkPos chunkPos = new ChunkPos(getBlockPos());
@@ -177,18 +186,15 @@ public class PumpjackHoleBlockEntity extends SmartBlockEntity implements IHaveGo
             int subtractedAmount = Mth.clamp((int) (100 * Math.abs((float) headPos / (float) bearingPos)) * (isCrankLarge ? 2 : 1), 0, 1000);
             storedOilAmount = storedOilAmount < subtractedAmount ? 0 : (int) (storedOilAmount - (100 / Math.abs((float) headPos / (float) bearingPos)));
 
+            TagKey<Fluid> fluidTag = TagRegistry.FluidTags.PUMPJACK_OUTPUT.tag;
 
-            List<Fluid> stackList = BuiltInRegistries.FLUID
-                            .getTag(optionalTag(BuiltInRegistries.FLUID, new ResourceLocation("createdieselgenerators:pumpjack_output")))
-                            .stream().map(holders -> holders.get(0).value())
-                            .distinct()
-                            .toList();
+            Optional<Fluid> stackList = BuiltInRegistries.FLUID.stream().filter(fluid -> FluidHelper.isTag(fluid, fluidTag)).findFirst();
+
             if(stackList.isEmpty())
                 return;
-            FluidStack oilStack = new FluidStack(stackList.get(0), subtractedAmount);
+            FluidStack oilStack = new FluidStack(stackList.get(), subtractedAmount);
 
             TransferUtil.insertFluid(tank.getPrimaryHandler(), oilStack);
-            //tank.getPrimaryHandler().fill(oilStack, IFluidHandler.FluidAction.EXECUTE);
         }
     }
 

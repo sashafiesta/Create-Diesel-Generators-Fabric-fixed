@@ -1,6 +1,7 @@
 package com.jesz.createdieselgenerators.fluids;
 
 import com.jesz.createdieselgenerators.CreativeTab;
+import com.jesz.createdieselgenerators.TagRegistry;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.AllTags;
 import com.tterrag.registrate.util.entry.FluidEntry;
@@ -52,6 +53,7 @@ public class FluidRegistry {
                             .blastResistance(100f))
                     .source(SimpleFlowableFluid.Source::new)
                     .tag(AllTags.forgeFluidTag("crude_oil"))
+                    .tag(TagRegistry.FluidTags.PUMPJACK_OUTPUT.tag)
                     .onRegisterAfter(Registries.ITEM, plant -> {
                         Fluid source = plant.getSource();
 

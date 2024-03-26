@@ -66,7 +66,7 @@ public class FuelTypeManager {
                     tryPopulateTags();
                 }else{
                     var fluid = BuiltInRegistries.FLUID.getOptional(new ResourceLocation(fluidId));//.getDelegate(new ResourceLocation(fluidId));
-                    System.out.println("FluidThezeNuts: " + fluid);
+
                     if(fluid.isEmpty())
                         return;
                     fuelTypes.put(fluid.get(), new CDGFuelType(

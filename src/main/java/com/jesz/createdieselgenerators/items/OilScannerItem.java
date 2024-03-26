@@ -66,9 +66,12 @@ public class OilScannerItem extends Item {
                         int amount = CreateDieselGenerators.getOilAmount((ServerLevel) level,
                                 level.getBiome(new BlockPos(chunkPos.x*16, 64, chunkPos.z*16)),
                                 chunkPos.x, chunkPos.z, ((ServerLevel) level).getSeed());
+
+
                         OilChunksSavedData sd = OilChunksSavedData.load((ServerLevel) level);
-                        if (sd.getChunkOilAmount(new ChunkPos(chunkPos.x, chunkPos.z)) >= 0)
+                        if (sd.getChunkOilAmount(new ChunkPos(chunkPos.x, chunkPos.z)) >= 0) {
                             amount = sd.getChunkOilAmount(new ChunkPos(chunkPos.x, chunkPos.z));
+                        }
 
                         if (amount <= 0)
                             stack.getTag().putInt("Type", 1);

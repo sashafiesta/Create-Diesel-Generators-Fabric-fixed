@@ -101,6 +101,7 @@ public class PumpjackHeadMovementBehaviour implements MovementBehaviour {
         }
 
         if(context.world.getBlockEntity(holePos) instanceof PumpjackHoleBlockEntity holeBE && bearing.crankSpeed >= 8) {
+
             holeBE.headPos = bearing.getBlockState().getValue(FACING).getAxis() == Direction.Axis.X ? context.localPos.getZ() : context.localPos.getX();
             holeBE.bearingPos = bearing.getBlockState().getValue(FACING).getAxis() == Direction.Axis.X ? bearing.bearingBPos.getZ() : bearing.bearingBPos.getX();
             if((bearing.crankAngle+180) % 360 < (context.data.getFloat("OldCrankAngle")+180) % 360)
