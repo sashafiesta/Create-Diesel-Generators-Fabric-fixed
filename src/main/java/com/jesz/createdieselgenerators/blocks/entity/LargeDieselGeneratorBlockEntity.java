@@ -35,7 +35,6 @@ import java.util.List;
 
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.POWERED;
 import static com.jesz.createdieselgenerators.blocks.DieselGeneratorBlock.SILENCED;
-import static com.jesz.createdieselgenerators.blocks.HugeDieselEngineBlock.FACING;
 import static com.jesz.createdieselgenerators.blocks.LargeDieselGeneratorBlock.*;
 
 public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntity implements SidedStorageBlockEntity {
@@ -45,6 +44,13 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
     boolean end = true;
     public WeakReference<LargeDieselGeneratorBlockEntity> forw;
     public WeakReference<LargeDieselGeneratorBlockEntity> back;
+    public WeakReference<LargeDieselGeneratorBlockEntity> frontEngine = new WeakReference<>(null);
+    public SmartFluidTankBehaviour tank;
+    public ScrollOptionBehaviour<WindmillBearingBlockEntity.RotationDirection> movementDirection;
+    public AbstractComputerBehaviour computerBehaviour;
+    int partialSecond;
+    int t = 0;
+    int totalSize = 0;
 
     public LargeDieselGeneratorBlockEntity(BlockEntityType<?> typeIn, BlockPos pos, BlockState state) {
         super(typeIn, pos, state);
@@ -53,8 +59,6 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
 
         this.state = state;
     }
-
-    public SmartFluidTankBehaviour tank;
 
     @Nullable
     @Override
@@ -70,7 +74,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         return null;
     }
 
-    int partialSecond;
+
     @Override
     protected void write(CompoundTag compound, boolean clientPacket) {
         super.write(compound, clientPacket);
@@ -84,8 +88,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         partialSecond = compound.getInt("PartialSecond");
         tank.read(compound, false);
     }
-    public ScrollOptionBehaviour<WindmillBearingBlockEntity.RotationDirection> movementDirection;
-    public AbstractComputerBehaviour computerBehaviour;
+
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
@@ -100,8 +103,8 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         behaviours.add(tank);
         super.addBehaviours(behaviours);
     }
-    public void onDirectionChanged(boolean first)
-    {
+
+    public void onDirectionChanged(boolean first) {
         LargeDieselGeneratorBlockEntity frontEngine = this.frontEngine.get();
         if(frontEngine == null)
             return;
@@ -140,7 +143,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
             return 0;
         return convertToDirection((movementDirection.getValue() == 1 ? -1 : 1)* FuelTypeManager.getGeneratedSpeed(this, tank.getPrimaryHandler().getFluid().getFluid()), getBlockState().getValue(LargeDieselGeneratorBlock.FACING));
     }
-    public WeakReference<LargeDieselGeneratorBlockEntity> frontEngine = new WeakReference<>(null);
+
     public void updateStacked(){
         LargeDieselGeneratorBlockEntity engineForward = getEngineFor();
         LargeDieselGeneratorBlockEntity engineBack = getEngineBack();
@@ -158,6 +161,7 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         } else
             engineForward.updateStacked();
     }
+
     public void setEveryEnginesFront(){
         LargeDieselGeneratorBlockEntity engineForward = getEngineFor();
         LargeDieselGeneratorBlockEntity engineBack = getEngineBack();
@@ -201,8 +205,6 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         }
         return containedFluidTooltip(tooltip, isPlayerSneaking, frontEngine.tank.getCapability());
     }
-    int t = 0;
-    int totalSize = 0;
 
     @Override
     public void tick() {
@@ -246,16 +248,16 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
 
     public LargeDieselGeneratorBlockEntity getEngineFor() {
         LargeDieselGeneratorBlockEntity engine = forw.get();
-        if (engine == null || engine.isRemoved() || engine.state.getValue(FACING) == state.getValue(FACING)) {
+        if (engine == null || engine.isRemoved() || engine.state.getValue(LargeDieselGeneratorBlock.FACING) == state.getValue(LargeDieselGeneratorBlock.FACING)) {
             if (engine != null)
                 forw = new WeakReference<>(null);
-            Direction facing = this.state.getValue(FACING);
+            Direction facing = this.state.getValue(LargeDieselGeneratorBlock.FACING);
             BlockEntity be = level.getBlockEntity(worldPosition.relative(facing.getAxis() == Direction.Axis.Z ? Direction.SOUTH : Direction.EAST));
             if (be instanceof LargeDieselGeneratorBlockEntity engineBE)
                 forw = new WeakReference<>(engine = engineBE);
         }
         if(engine != null){
-            if (engine.state.getValue(FACING).getAxis() != state.getValue(FACING).getAxis()) {
+            if (engine.state.getValue(LargeDieselGeneratorBlock.FACING).getAxis() != state.getValue(LargeDieselGeneratorBlock.FACING).getAxis()) {
                 forw = new WeakReference<>(null);
                 return null;
             }
@@ -268,14 +270,14 @@ public class LargeDieselGeneratorBlockEntity extends GeneratingKineticBlockEntit
         if (engine == null || engine.isRemoved()) {
             if (engine != null)
                 back = new WeakReference<>(null);
-            Direction facing = this.state.getValue(FACING);
+            Direction facing = this.state.getValue(LargeDieselGeneratorBlock.FACING);
             BlockEntity be = level.getBlockEntity(worldPosition.relative(facing.getAxis() == Direction.Axis.Z ? Direction.NORTH : Direction.WEST));
             if (be instanceof LargeDieselGeneratorBlockEntity engineBE)
                 back = new WeakReference<>(engine = engineBE);
 
         }
         if(engine != null){
-            if (engine.state.getValue(FACING).getAxis() != state.getValue(FACING).getAxis()) {
+            if (engine.state.getValue(LargeDieselGeneratorBlock.FACING).getAxis() != state.getValue(LargeDieselGeneratorBlock.FACING).getAxis()) {
                 back = new WeakReference<>(null);
                 return null;
             }
