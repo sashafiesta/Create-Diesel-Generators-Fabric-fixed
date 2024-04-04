@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
+/*
 @Mixin(value = com.simibubi.create.content.contraptions.MountedFluidStorage.class, remap = false)
 public abstract class MountedFluidStorageMixin {
     @Shadow protected abstract void onFluidStackChanged(FluidStack fs);
@@ -29,3 +29,5 @@ public abstract class MountedFluidStorageMixin {
                     this::onFluidStackChanged));
     }
 }
+
+ */
