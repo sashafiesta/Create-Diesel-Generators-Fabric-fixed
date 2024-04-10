@@ -3,22 +3,13 @@ package com.jesz.createdieselgenerators;
 import com.jesz.createdieselgenerators.blocks.BlockRegistry;
 import com.jesz.createdieselgenerators.fluids.FluidRegistry;
 import com.jesz.createdieselgenerators.items.ItemRegistry;
-import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.utility.Components;
-import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ItemLike;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class CreativeTab {
 
@@ -53,13 +44,12 @@ public class CreativeTab {
             entries.accept(BlockRegistry.ASPHALT_BLOCK);
             entries.accept(BlockRegistry.ASPHALT_STAIRS);
             entries.accept(BlockRegistry.ASPHALT_SLAB);
-            //entries.accept(FluidRegistry.CRUDE_OIL.getBucket());
-                    //FluidRegistry.CRUDE_OIL.getBucket().get(),
-                    //FluidRegistry.BIODIESEL.getBucket().get(),
-                    //FluidRegistry.DIESEL.getBucket().get(),
-                    //FluidRegistry.GASOLINE.getBucket().get(),
-                    //FluidRegistry.PLANT_OIL.getBucket().get(),
-                    //FluidRegistry.ETHANOL.getBucket().get(),
+            entries.accept(FluidRegistry.CRUDE_OIL.get().getBucket());
+            entries.accept(FluidRegistry.BIODIESEL.get().getBucket());
+            entries.accept(FluidRegistry.DIESEL.get().getBucket());
+            entries.accept(FluidRegistry.GASOLINE.get().getBucket());
+            entries.accept(FluidRegistry.PLANT_OIL.get().getBucket());
+            entries.accept(FluidRegistry.ETHANOL.get().getBucket());
             entries.accept(ItemRegistry.KELP_HANDLE);
             entries.accept(ItemRegistry.LIGHTER);
             entries.accept(ItemRegistry.CHEMICAL_SPRAYER);
