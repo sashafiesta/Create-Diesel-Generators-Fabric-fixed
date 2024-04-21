@@ -3,7 +3,7 @@
   "ingredients": [
     {
       "fluidTag": "c:crude_oil",
-      "amount": 100
+      "amount": 8100
     }
   ],
   "heatRequirement": "heated",
@@ -11,11 +11,11 @@
   "results": [
     {
       "fluid": "createdieselgenerators:diesel",
-      "amount": 50
+      "amount": 4050
     },
     {
       "fluid": "createdieselgenerators:gasoline",
-      "amount": 50
+      "amount": 4050
     }
   ]
 }
