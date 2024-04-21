@@ -3,17 +3,17 @@
   "ingredients": [
     {
       "fluidTag": "c:plantoil",
-      "amount": 100
+      "amount": 8100
     },
     {
       "fluidTag": "c:ethanol",
-      "amount": 100
+      "amount": 8100
     }
   ],
   "results": [
     {
       "fluid": "createdieselgenerators:biodiesel",
-      "amount": 200
+      "amount": 16200
     }
   ]
 }
