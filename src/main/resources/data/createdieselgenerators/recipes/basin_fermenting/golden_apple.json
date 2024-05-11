@@ -24,7 +24,7 @@
       "nbt": {
         "Potion": "minecraft:mundane"
       },
-      "amount": 100
+      "amount": 8100
     }
   ],
   "processingTime": 400,
@@ -37,7 +37,7 @@
       "nbt": {
         "Potion": "minecraft:thick"
       },
-      "amount": 100
+      "amount": 8100
     }
   ]
 }
