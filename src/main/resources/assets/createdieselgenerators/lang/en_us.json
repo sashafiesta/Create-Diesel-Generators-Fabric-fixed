@@ -43,9 +43,9 @@
 
   "block.createdieselgenerators.biodiesel": "Biodiesel",
   "block.createdieselgenerators.diesel": "Diesel",
-  "block.createdieselgenerators.crude_oil": "Crude oil",
+  "block.createdieselgenerators.crude_oil": "Crude Oil",
   "block.createdieselgenerators.gasoline": "Gasoline",
-  "block.createdieselgenerators.plant_oil": "Plant oil",
+  "block.createdieselgenerators.plant_oil": "Plant Oil",
   "block.createdieselgenerators.ethanol": "Ethanol",
 
   "createdieselgenerators.recipe.basin_fermenting": "Basin Processing",
