@@ -79,7 +79,7 @@ public class DieselEngineCategory implements IRecipeCategory<DieselEngineJeiReci
         DieselGeneratorBlock.EngineTypes currentEngine = enabledEngines.get(currentEngineIndex % enginesEnabled);
         float currentSpeed = FuelTypeManager.getGeneratedSpeed(currentEngine, recipe.fluid);
         float currentCapacity = FuelTypeManager.getGeneratedStress(currentEngine, recipe.fluid);
-        float currentBurn = FuelTypeManager.getBurnRate(currentEngine, recipe.fluid);
+        float currentBurn = FuelTypeManager.getBurnRate(currentEngine, recipe.fluid)/81;
 
         graphics.drawString(Minecraft.getInstance().font, Lang.number(currentBurn).component().append(Component.translatable("createdieselgenerators.generic.unit.mbps")), 5,
                 40, 0x888888, false);

@@ -40,7 +40,7 @@ public class CanisterBlockEntity extends SmartBlockEntity implements IHaveGoggle
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        tank = CapacityEnchantedFluidTankBehaviour.single(this, Math.abs((ConfigRegistry.CANISTER_CAPACITY.get())), ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get());
+        tank = CapacityEnchantedFluidTankBehaviour.single(this, Math.abs((ConfigRegistry.CANISTER_CAPACITY.get()*81)), 81*ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get());
         behaviours.add(tank);
     }
 

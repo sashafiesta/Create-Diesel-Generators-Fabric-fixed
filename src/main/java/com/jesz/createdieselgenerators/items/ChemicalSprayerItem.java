@@ -55,7 +55,7 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
                 return;
             }
             var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
-            components.add(Lang.fluidName(fStack).component().withStyle(ChatFormatting.GRAY).append(" ").append(Lang.number(fStack.getAmount()).style(ChatFormatting.GOLD).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD)).append(Component.literal(" / ")).append(Lang.number(ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()).style(ChatFormatting.GRAY).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
+            components.add(Lang.fluidName(fStack).component().withStyle(ChatFormatting.GRAY).append(" ").append(Lang.number(fStack.getAmount()/81).style(ChatFormatting.GOLD).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD)).append(Component.literal(" / ")).append(Lang.number(ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()).style(ChatFormatting.GRAY).component()).append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GRAY)));
             return;
         }
         components.add(Component.translatable("createdieselgenerators.tooltip.empty").withStyle(ChatFormatting.GRAY));
@@ -110,7 +110,7 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
                         projectile.setPos(player.position().add(0, 1.5f, 0));
                         projectile.shootFromRotation(player, player.getXRot() + new Random().nextFloat(-5, 5), player.getYRot() + new Random().nextFloat(-5, 5), 0.0f, 1.0f, 1.0f);
                         level.addFreshEntity(projectile);
-                        fluidStack.setAmount(fluidStack.getAmount() - 1);
+                        fluidStack.setAmount(fluidStack.getAmount() - 1*81);
 
                     }
                     if (!(player instanceof Player p && p.isCreative()) && count % 25 == 0)
@@ -144,13 +144,13 @@ public class ChemicalSprayerItem extends Item implements CustomArmPoseItem, Capa
 
         var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
 
-        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(tankCompound).getAmount()/(
+        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(tankCompound).getAmount()/81/(
                 (float)ConfigRegistry.TOOL_CAPACITY.get() + v*ConfigRegistry.TOOL_CAPACITY_ENCHANTMENT.get()
         ), 0, 1));
     }
 
     @Override
     public Storage<FluidVariant> getFluidStorage(ItemStack stack, ContainerItemContext context) {
-        return new FluidHandlerItemStack(context, ConfigRegistry.TOOL_CAPACITY.get());
+        return new FluidHandlerItemStack(context, ConfigRegistry.TOOL_CAPACITY.get()*81);
     }
 }

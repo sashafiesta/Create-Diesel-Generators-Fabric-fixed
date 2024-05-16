@@ -145,6 +145,9 @@ public class FuelTypeManager {
         return 0;
     }
     public static int getBurnRate(DieselGeneratorBlock.EngineTypes engine, Fluid fluid){
+        return getForgeBurnRate(engine, fluid)*81;
+    }
+	private static int getForgeBurnRate(DieselGeneratorBlock.EngineTypes engine, Fluid fluid){
         tryPopulateTags();
         if(fuelTypes.containsKey(fluid))
             if(engine == DieselGeneratorBlock.EngineTypes.NORMAL)
@@ -168,17 +171,23 @@ public class FuelTypeManager {
         return 0;
     }
     public static int getBurnRate(BlockEntity be, Fluid fluid){
+        return getForgeBurnRate(be, fluid)*81;
+    }
+	private static int getForgeBurnRate(BlockEntity be, Fluid fluid){
         tryPopulateTags();
         if(fuelTypes.containsKey(fluid))
             return fuelTypes.get(fluid).getBurn(be);
         return 0;
     }
     public static int getBurnRate(Fluid fluid){
-        tryPopulateTags();
+        return getForgeBurnRate(fluid)*81;
+    }
+	public static int getForgeBurnRate(Fluid fluid){
+		tryPopulateTags();
         if(fuelTypes.containsKey(fluid))
             return fuelTypes.get(fluid).getBurnNormal();
         return 0;
-    }
+	}
     public static int getSoundSpeed(Fluid fluid){
         tryPopulateTags();
         if(fuelTypes.containsKey(fluid))

@@ -16,6 +16,6 @@ public class DieselEngineJeiRecipeType {
         this.fluid = fluid;
         speed = FuelTypeManager.getGeneratedSpeed(fluid);
         stress = FuelTypeManager.getGeneratedStress(fluid);
-        burnRate = FuelTypeManager.getBurnRate(fluid);
+        burnRate = FuelTypeManager.getBurnRate(fluid)/81;
     }
 }

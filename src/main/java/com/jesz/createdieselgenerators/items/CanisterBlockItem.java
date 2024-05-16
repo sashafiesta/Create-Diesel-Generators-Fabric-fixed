@@ -50,7 +50,7 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
             components.add(Lang.fluidName(fStack).component()
                     .withStyle(ChatFormatting.GRAY)
                     .append(" ")
-                    .append(Lang.number(fStack.getAmount())
+                    .append(Lang.number(fStack.getAmount()/81)
                             .style(ChatFormatting.GOLD).component())
                     .append(Component.translatable("create.generic.unit.millibuckets").withStyle(ChatFormatting.GOLD))
                     .append(Component.literal(" / "))
@@ -102,13 +102,13 @@ public class CanisterBlockItem extends BlockItem implements CapacityEnchantment.
             return 0;
         CompoundTag primaryTankCompound = stack.getTag().getCompound("BlockEntityTag").getList("Tanks", Tag.TAG_COMPOUND).getCompound(0).getCompound("TankContent");
         var v = EnchantmentHelper.getItemEnchantmentLevel(AllEnchantments.CAPACITY.get(), stack);
-        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(primaryTankCompound).getAmount()/(float)(ConfigRegistry.CANISTER_CAPACITY.get()+ ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get() * v), 0, 1));
+        return Math.round(13 * Mth.clamp(FluidStack.loadFluidStackFromNBT(primaryTankCompound).getAmount()/81/(float)(ConfigRegistry.CANISTER_CAPACITY.get()+ ConfigRegistry.CANISTER_CAPACITY_ENCHANTMENT.get() * v), 0, 1));
     }
 
 
     @Override
     public Storage<FluidVariant> getFluidStorage(ItemStack stack, ContainerItemContext context) {
-        return new CanisterFluidHandlerItemStack(context, ConfigRegistry.CANISTER_CAPACITY.get());
+        return new CanisterFluidHandlerItemStack(context, ConfigRegistry.CANISTER_CAPACITY.get()*81);
     }
 
     static class CanisterFluidHandlerItemStack extends FluidHandlerItemStack {
